@@ -175,6 +175,17 @@ definitions:
         type: string
         format: url
         description: Link to memorandum of understanding document
+      apiQueryParams:
+        type: array
+        description: If data is provided to consuming entities via API, what fields can be used with the API to retrive data?
+        items:
+          properties:
+            field:
+              type: string
+              description: Field being used in API request to filter data.
+            description:
+              type: string
+              description: Description of field.
       consumingEntities:
         type: array
         description: What entities are consuming and have access to this data?
@@ -186,6 +197,9 @@ definitions:
             entityName:
               type: string
               description: Department or vendor name
+            applicationName:
+              type: string
+              description: Name of application being used or maintained by the entity which consumes the data provided to them.
             entityContactName:
               type: string
             entityEmail:
@@ -205,6 +219,14 @@ definitions:
         description: What data is being exposed or transferred?
         items:
           $ref: "#/definitions/DataSource"
+      created:
+        type: string
+        format: date
+        description: When was this dataInventory object created?
+      updated:
+        type: string
+        format: date
+        description: When was this dataInventory object last updated?
   DataSource:
     properties:
       sourceID:
@@ -237,10 +259,14 @@ definitions:
         description: >
           If false, the data source is hosted and maintained outside of the university.
       fields:
-        type: array
         items:
-          type: string
-          description: Plain english name of field being provided
+          properties:
+            field:
+              type: string
+              description: Plain english name of field being provided
+            description:
+              type: string
+              description: Description of field.
   Error:
     properties:
       status:
