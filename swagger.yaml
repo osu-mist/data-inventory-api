@@ -1,34 +1,134 @@
 swagger: '2.0'
 info:
-  title: Web API Skeleton
-  description: Skeleton for Dropwizard Web APIs
+  title: Data Inventory API
+  description: API used to keep track of data being given to other departments via ETL jobs or APIs.
   version: '0.0'
   license:
     name: GNU Affero General Public License Version 3
     url: http://www.gnu.org/licenses/agpl-3.0.en.html
 externalDocs:
   description: GitHub Repository
-  url: https://github.com/osu-mist/web-api-skeleton
-host: localhost
+  url: https://github.com/osu-mist/data-inventory-api
 schemes:
-  - http
-basePath: /api/v0
+  - https
+basePath: /v1/
 consumes:
-  - text/plain
+  - application/json
 produces:
-  - text/plain
+  - application/json
 paths:
-  /:
+  /datainventory:
     get:
-      summary: Get information
-      description: Build and runtime information about the application.
+      description: "Get all dataInventory objects. Can be filtered by query parameters."
       parameters:
+        - name: type
+          in: query
+          description: >
+            Filter by dataInventory object type. Valid types are "API", "Talend", or "Other".
+          collectionFormat: multi
+          required: false
+          type: string
         - $ref: '#/parameters/pretty'
       responses:
         200:
-          description: Object containing information
+          description: Successful response
           schema:
-            $ref: '#/definitions/Info'
+            $ref: '#/definitions/ResultObject'
+        400:
+          description: Bad request. Invalid type parameter.
+          schema:
+            $ref: '#/definitions/Error'
+    
+    post:
+      description: Add a new dataInventory object.
+      parameters:
+        - name: dataInventory object
+          in: body
+          description: JSON representation of dataInventory object
+          required: true
+          schema:
+            $ref: '#/definitions/ResultObject'
+        - $ref: '#/parameters/pretty'
+      responses:
+        201:
+          description: dataInventory object successfully created.
+          schema:
+            $ref: '#/definitions/ResultObject'
+        400:
+          description: Bad request.
+          schema:
+            $ref: '#/definitions/Error'
+        409:
+          description: "Conflict: Client generated ID already exists or type is invalid."
+          schema:
+            $ref: '#/definitions/Error'
+            
+  /datainventory/{id}:
+    get:
+      description: Get a single dataInventory object by ID.
+      parameters:
+        - name: id
+          in: path
+          description: ID of dataInventory object
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successful response
+          schema:
+            $ref: '#/definitions/ResultObject'
+        404:
+          description: Not found
+          schema:
+            $ref: '#/definitions/ResultObject'
+    
+    patch:
+      description: Update an existing dataInventory object
+      parameters:
+        - name: id
+          in: path
+          description: ID of dataInventory object
+          required: true
+          type: string
+        - name: dataInventory object
+          in: body
+          description: JSON representation of dataInventory object
+          required: true
+          schema:
+            $ref: '#/definitions/ResultObject'
+      responses:
+        200:
+          description: dataInventory object successfully updated.
+          schema:
+            $ref: '#/definitions/ResultObject'
+        400:
+          description: Bad request
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: Not found
+          schema:
+            $ref: '#/definitions/Error'
+        409:
+          description: "Conflict: Type and/or id do not match server's endpoint"
+          schema:
+            $ref: '#/definitions/Error'
+    
+    delete:
+      description: Delete an existing dataInventory object
+      parameters:
+        - name: id
+          in: path
+          description: ID of dataInventory object
+          required: true
+          type: string
+      responses:
+        204:
+          description: dataInventory object successfully deleted
+        404:
+          description: Not found
+          schema:
+            $ref: '#/definitions/Error'
 
 parameters:
   pretty:
@@ -39,23 +139,134 @@ parameters:
     description: If true, JSON response will be pretty-printed
 
 definitions:
-  Info:
+  ResultObject:
+    properties:
+      data:
+        type: array
+        items:
+          $ref: "#/definitions/ResourceObject"
+  ResourceObject:
+    properties:
+      id:
+        type: string
+        description: "UUID as specified here: https://tools.ietf.org/html/rfc4122.html"
+      type:
+        type: string
+      attributes:
+        $ref: "#/definitions/Attributes"
+  Attributes:
     properties:
       name:
         type: string
-        description: Name of the API.
-      time:
+        description: Name of API or Talend job
+      description:
         type: string
-        description: Build time in ISO 8601 format.
-      unixTime:
-        type: integer
-        description: Build time as milliseconds since the unix epoch.
-      commit:
+        description: >
+          Short description of API or Talend job. This shouldn't include anything that could be 
+          populated by other fields in the attributes object.
+      type:
         type: string
-        description: Git commit hash of the revision which was built.
-      documentation:
+        description: >
+          Type of mechanism being used to deliver the data. Possible values are "API", "Talend", or "Other".
+      otherType:
         type: string
-        description: Filename of the swagger specification for the API.
+        description: 'Explanation if type is "Other".'
+      mou:
+        type: string
+        format: url
+        description: Link to memorandum of understanding document
+      apiQueryParams:
+        type: array
+        description: If data is provided to consuming entities via API, what fields can be used with the API to retrive data?
+        items:
+          properties:
+            field:
+              type: string
+              description: Field being used in API request to filter data.
+            description:
+              type: string
+              description: Description of field.
+      consumingEntities:
+        type: array
+        description: What entities are consuming and have access to this data?
+        items:
+          properties:
+            entityID:
+              type: string
+              description: Able to be generated by the client.
+            entityName:
+              type: string
+              description: Department or vendor name
+            applicationName:
+              type: string
+              description: Name of application being used or maintained by the entity which consumes the data provided to them.
+            entityContactName:
+              type: string
+            entityEmail:
+              type: string
+            entityPhone:
+              type: string
+            entityUrl:
+              type: string
+              format: url
+              description: Website for entity
+            internal:
+              type: boolean
+              description: >
+                If false, the entity is a third-party vendor goverened outside the scope of the university.
+      providedData:
+        type: array
+        description: What data is being exposed or transferred?
+        items:
+          $ref: "#/definitions/DataSource"
+      created:
+        type: string
+        format: date
+        description: When was this dataInventory object created?
+      updated:
+        type: string
+        format: date
+        description: When was this dataInventory object last updated?
+  DataSource:
+    properties:
+      sourceID:
+        type: string
+        description: Able to be generated by the client.
+      sourceDescription:
+        type: string
+      sourceType:
+        type: string
+        description: > 
+          Type of data source being accessed directly. Possible values are "api", "database", or "other".
+      otherSourceType:
+        type: string
+        description: "Explanation if sourceType is 'other'"
+      database:
+        type: string
+        description: Name of database being accessed, if applicable.
+      databaseSchema:
+        type: string
+        description: Name of database schema being used, if applicable.
+      querySQL:
+        type: string
+        description: SQL query being used to get fields, if applicable.
+      apiUrl:
+        type: string
+        format: url
+        description: Url of API being called, if applicable.
+      internal:
+        type: boolean
+        description: >
+          If false, the data source is hosted and maintained outside of the university.
+      fields:
+        items:
+          properties:
+            field:
+              type: string
+              description: Plain english name of field being provided
+            description:
+              type: string
+              description: Description of field.
   Error:
     properties:
       status:

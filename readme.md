@@ -1,6 +1,6 @@
-# Web API Skeleton
+# Data Inventory API
 
-Skeleton for Dropwizard Web APIs.
+API to retrive, create, and update records that contain information about what data is being exposed.
 
 ### Generate Keys
 
