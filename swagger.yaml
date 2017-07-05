@@ -38,7 +38,7 @@ paths:
           description: Bad request. Invalid type parameter.
           schema:
             $ref: '#/definitions/Error'
-    
+
     post:
       description: Add a new dataInventory object.
       parameters:
@@ -62,7 +62,7 @@ paths:
           description: "Conflict: Client generated ID already exists or type is invalid."
           schema:
             $ref: '#/definitions/Error'
-            
+
   /datainventory/{id}:
     get:
       description: Get a single dataInventory object by ID.
@@ -81,7 +81,7 @@ paths:
           description: Not found
           schema:
             $ref: '#/definitions/ResultObject'
-    
+
     patch:
       description: Update an existing dataInventory object
       parameters:
@@ -113,7 +113,7 @@ paths:
           description: "Conflict: Type and/or id do not match server's endpoint"
           schema:
             $ref: '#/definitions/Error'
-    
+
     delete:
       description: Delete an existing dataInventory object
       parameters:
@@ -162,7 +162,7 @@ definitions:
       description:
         type: string
         description: >
-          Short description of API or Talend job. This shouldn't include anything that could be 
+          Short description of API or Talend job. This shouldn't include anything that could be
           populated by other fields in the attributes object.
       type:
         type: string
@@ -171,10 +171,6 @@ definitions:
       otherType:
         type: string
         description: 'Explanation if type is "Other".'
-      mou:
-        type: string
-        format: url
-        description: Link to memorandum of understanding document
       apiQueryParams:
         type: array
         description: If data is provided to consuming entities via API, what fields can be used with the API to retrive data?
@@ -214,6 +210,10 @@ definitions:
               type: boolean
               description: >
                 If false, the entity is a third-party vendor goverened outside the scope of the university.
+            mou:
+              type: string
+              format: url
+              description: Link to memorandum of understanding document.
       providedData:
         type: array
         description: What data is being exposed or transferred?
@@ -236,20 +236,11 @@ definitions:
         type: string
       sourceType:
         type: string
-        description: > 
+        description: >
           Type of data source being accessed directly. Possible values are "api", "database", or "other".
       otherSourceType:
         type: string
         description: "Explanation if sourceType is 'other'"
-      database:
-        type: string
-        description: Name of database being accessed, if applicable.
-      databaseSchema:
-        type: string
-        description: Name of database schema being used, if applicable.
-      querySQL:
-        type: string
-        description: SQL query being used to get fields, if applicable.
       apiUrl:
         type: string
         format: url
