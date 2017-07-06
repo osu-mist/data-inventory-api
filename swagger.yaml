@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  title: Data Inventory API
+  title: Inventory API
   description: API used to keep track of data being given to other departments via ETL jobs or APIs.
   version: '0.0'
   license:
