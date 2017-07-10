@@ -35,8 +35,7 @@ CREATE TABLE apismgr.INVENTORY_FIELDS
     PARENT_ID              VARCHAR2(36) NOT NULL,
     FIELD                  VARCHAR2(256),
     DESCRIPTION            CLOB,
-    IS_QUERY_PARAM         VARCHAR2(1) NOT NULL,
-    IS_PROVIDED_DATA       VARCHAR2(1) NOT NULL,
+    TYPE                   VARCHAR2(256) NOT NULL,
     CREATED_AT             DATE NOT NULL,
     UPDATED_AT             DATE,
     DELETED_AT             DATE,
@@ -54,13 +53,12 @@ COMMENT ON TABLE apismgr.INVENTORY_FIELDS IS 'Contains fields given to entities,
 COMMENT ON COLUMN apismgr.INVENTORY_FIELDS.FIELD_ID IS 'Primary key. For internal use only. Not seen by client.';
 COMMENT ON COLUMN apismgr.INVENTORY_FIELDS.CLIENT_FIELD_ID IS 'Able to be generated and seen by client.';
 COMMENT ON COLUMN apismgr.INVENTORY_FIELDS.PARENT_ID IS 'ID of parent object.';
-COMMENT ON COLUMN apismgr.INVENTORY_FIELDS.FIELD IS 'Field being used in API request to filter results.';
+COMMENT ON COLUMN apismgr.INVENTORY_FIELDS.FIELD IS 'Name of field.';
 COMMENT ON COLUMN apismgr.INVENTORY_FIELDS.DESCRIPTION is 'Description of field.';
-COMMENT ON COLUMN apismgr.INVENTORY_FIELDS.IS_QUERY_PARAM IS 'If true, the field is used as an API query parameter.';
-COMMENT ON COLUMN apismgr.INVENTORY_FIELDS.IS_PROVIDED_DATA IS 'If true, the field being provided to the entity.'
+COMMENT ON COLUMN apismgr.INVENTORY_FIELDS.TYPE is 'Whether field is provided data or used as an API query parameter.';
 COMMENT ON COLUMN apismgr.INVENTORY_FIELDS.CREATED_AT is 'Stores SYSDATE when field record was created.';
-COMMENT ON COLUMN apismgr.INVENTORY_FIELDS.UPDATED_AT is 'Stores SYSDATE when field param record was updated.';
-COMMENT ON COLUMN apismgr.INVENTORY_FIELDS.DELETED_AT is 'Stores SYSDATE when field param record was deleted.';
+COMMENT ON COLUMN apismgr.INVENTORY_FIELDS.UPDATED_AT is 'Stores SYSDATE when field record was updated.';
+COMMENT ON COLUMN apismgr.INVENTORY_FIELDS.DELETED_AT is 'Stores SYSDATE when field record was deleted.';
 
 CREATE TABLE apismgr.INVENTORY_CONSUMING_ENTITIES
 (
