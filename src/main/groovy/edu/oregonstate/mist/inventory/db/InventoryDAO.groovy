@@ -35,6 +35,22 @@ public interface InventoryDAO extends Closeable {
 
     @SqlQuery("""
         SELECT
+            INVENTORY_ID,
+            NAME,
+            DESCRIPTION,
+            TYPE,
+            OTHER_TYPE,
+            TO_CHAR(CREATED_AT, 'yyyy-mm-dd hh24:mi:ss') AS CREATED_AT,
+            TO_CHAR(UPDATED_AT, 'yyyy-mm-dd hh24:mi:ss') AS UPDATED_AT
+        FROM INVENTORY_INVENTORY
+        WHERE DELETED_AT IS NULL
+        AND INVENTORY_ID = :inventoryID
+        """)
+    @Mapper(InventoryMapper)
+    Inventory getInventoryByID(@Bind("inventoryID") String inventoryID)
+
+    @SqlQuery("""
+        SELECT
             CLIENT_FIELD_ID,
             FIELD,
             DESCRIPTION

@@ -11,6 +11,7 @@ import groovy.transform.TypeChecked
 import javax.annotation.security.PermitAll
 import javax.ws.rs.GET
 import javax.ws.rs.Path
+import javax.ws.rs.PathParam
 import javax.ws.rs.Produces
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
@@ -39,6 +40,21 @@ class InventoryResource extends Resource {
         List<ResourceObject> resourceObjects = getResourceObjects(inventories)
 
         ok(new ResultObject(data: resourceObjects)).build()
+    }
+
+    @Timed
+    @GET
+    @Path('{id: [0-9a-zA-Z-]+}')
+    Response getInventoryByID(@PathParam("id") String inventoryID) {
+        Inventory inventory = inventoryDAO.getInventoryByID(inventoryID)
+
+        if (!inventory) {
+            return notFound().build()
+        }
+
+        ResourceObject resourceObject = getResourceObject(inventory)
+
+        ok(new ResultObject(data: resourceObject)).build()
     }
 
     private List<ResourceObject> getResourceObjects(List<Inventory> inventories) {
