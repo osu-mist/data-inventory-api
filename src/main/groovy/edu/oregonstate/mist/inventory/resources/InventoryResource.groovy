@@ -61,14 +61,14 @@ class InventoryResource extends Resource {
     @Timed
     @DELETE
     @Path('{id: [0-9a-zA-Z-]+}')
-    Response deleteInventory(@PathParam("id") String inventoryID) {
+    Response deleteInventoryByID(@PathParam("id") String inventoryID) {
         Inventory inventory = inventoryDAO.getInventoryByID(inventoryID)
 
         if (!inventory) {
             return notFound().build()
         }
 
-        deleteInventoryAndChildObjects(inventory)
+        deleteInventory(inventory)
 
         Response.noContent().build()
     }
@@ -101,7 +101,7 @@ class InventoryResource extends Resource {
         )
     }
 
-    private void deleteInventoryAndChildObjects(Inventory inventory) {
+    private void deleteInventory(Inventory inventory) {
         ResourceObject resourceObject = getResourceObject(inventory)
 
         inventoryDAO.deleteInventory(resourceObject.id)
