@@ -19,6 +19,10 @@ public interface InventoryDAO extends Closeable {
     @SqlQuery("SELECT 1 FROM dual")
     Integer checkHealth()
 
+    /**
+     * Get all inventory objects that aren't deleted
+     * @return List of inventory objects
+     */
     @SqlQuery("""
         SELECT
             INVENTORY_ID,
@@ -34,6 +38,11 @@ public interface InventoryDAO extends Closeable {
     @Mapper(InventoryMapper)
     List<Inventory> getInventories()
 
+    /**
+     * Get a single inventory object by ID
+     * @param inventoryID
+     * @return inventory object
+     */
     @SqlQuery("""
         SELECT
             INVENTORY_ID,
@@ -50,6 +59,12 @@ public interface InventoryDAO extends Closeable {
     @Mapper(InventoryMapper)
     Inventory getInventoryByID(@Bind("inventoryID") String inventoryID)
 
+    /**
+     * Get fields for query params or provided data fields
+     * @param type
+     * @param parentID
+     * @return List of fields object
+     */
     @SqlQuery("""
         SELECT
             CLIENT_FIELD_ID,
@@ -64,6 +79,11 @@ public interface InventoryDAO extends Closeable {
     List<Field> getFields(@Bind("type") String type,
                           @Bind("parentID") String parentID)
 
+    /**
+     * Get consuming entities for an inventory object
+     * @param inventoryID
+     * @return List of consuming entities
+     */
     @SqlQuery("""
         SELECT
             CLIENT_ENTITY_ID,
@@ -82,6 +102,11 @@ public interface InventoryDAO extends Closeable {
     @Mapper(ConsumingEntityMapper)
     List<ConsumingEntity> getConsumingEntities(@Bind("inventoryID") String inventoryID)
 
+    /**
+     * Get provided data for an inventory object
+     * @param inventoryID
+     * @return List of provided data objects
+     */
     @SqlQuery("""
         SELECT
             DATA_ID,
@@ -99,6 +124,10 @@ public interface InventoryDAO extends Closeable {
     @Mapper(DataSourceMapper)
     List<DataSource> getProvidedData(@Bind("inventoryID") String inventoryID)
 
+    /**
+     * Soft delete inventory object
+     * @param inventoryID
+     */
     @SqlUpdate("""
         UPDATE INVENTORY_INVENTORY
         SET DELETED_AT = SYSDATE
@@ -106,6 +135,11 @@ public interface InventoryDAO extends Closeable {
     """)
     void deleteInventory(@Bind("inventoryID") String inventoryID)
 
+    /**
+     * Soft delete field objects
+     * @param parentID
+     * @param type
+     */
     @SqlUpdate("""
         UPDATE INVENTORY_FIELDS
         SET DELETED_AT = SYSDATE
@@ -115,6 +149,10 @@ public interface InventoryDAO extends Closeable {
     void deleteFields(@Bind("parentID") String parentID,
                       @Bind("type") String type)
 
+    /**
+     * Soft delete consuming entity objects
+     * @param inventoryID
+     */
     @SqlUpdate("""
         UPDATE INVENTORY_CONSUMING_ENTITIES
         SET DELETED_AT = SYSDATE
@@ -122,6 +160,10 @@ public interface InventoryDAO extends Closeable {
     """)
     void deleteConsumingEntities(@Bind("inventoryID") String inventoryID)
 
+    /**
+     * Soft delete provided data objects
+     * @param inventoryID
+     */
     @SqlUpdate("""
         UPDATE INVENTORY_PROVIDED_DATA
         SET DELETED_AT = SYSDATE

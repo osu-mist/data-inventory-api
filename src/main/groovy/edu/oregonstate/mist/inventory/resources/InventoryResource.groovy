@@ -40,6 +40,10 @@ class InventoryResource extends Resource {
         this.endpointUri = endpointUri
     }
 
+    /**
+     * Get all inventory objects that aren't deleted
+     * @return
+     */
     @Timed
     @GET
     Response getAllInventories() {
@@ -49,6 +53,11 @@ class InventoryResource extends Resource {
         ok(new ResultObject(data: resourceObjects)).build()
     }
 
+    /**
+     * Get one inventory object by ID
+     * @param inventoryID
+     * @return
+     */
     @Timed
     @GET
     @Path('{id: [0-9a-zA-Z-]+}')
@@ -64,6 +73,11 @@ class InventoryResource extends Resource {
         ok(new ResultObject(data: resourceObject)).build()
     }
 
+    /**
+     * Delete one inventory object by ID
+     * @param inventoryID
+     * @return
+     */
     @Timed
     @DELETE
     @Path('{id: [0-9a-zA-Z-]+}')
@@ -88,6 +102,11 @@ class InventoryResource extends Resource {
         response
     }
 
+    /**
+     * Get list of ResourceObjects from a list of inventory objects
+     * @param inventories
+     * @return
+     */
     private List<ResourceObject> getResourceObjects(List<Inventory> inventories) {
         List<ResourceObject> resourceObjects = []
 
@@ -98,6 +117,12 @@ class InventoryResource extends Resource {
         resourceObjects
     }
 
+    /**
+     * Create a single ResourceObject from an inventory object.
+     * Calls DAO methods to get objects associated with inventory object.
+     * @param inventory
+     * @return Complete ResourceObject
+     */
     private ResourceObject getResourceObject (Inventory inventory) {
         inventory.apiQueryParams = inventoryDAO.getFields(QUERY_DB_TYPE, inventory.id)
         inventory.consumingEntities = inventoryDAO.getConsumingEntities(inventory.id)
@@ -123,6 +148,11 @@ class InventoryResource extends Resource {
         )
     }
 
+    /**
+     * Call DAO methods to delete inventory object
+     * and its associated objects.
+     * @param inventory
+     */
     private void deleteInventory(Inventory inventory) {
         ResourceObject resourceObject = getResourceObject(inventory)
 
