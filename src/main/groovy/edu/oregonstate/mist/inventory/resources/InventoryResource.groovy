@@ -7,6 +7,8 @@ import edu.oregonstate.mist.api.jsonapi.ResultObject
 import edu.oregonstate.mist.inventory.core.Inventory
 import edu.oregonstate.mist.inventory.db.InventoryDAO
 import groovy.transform.TypeChecked
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 import javax.annotation.security.PermitAll
 import javax.ws.rs.DELETE
@@ -22,6 +24,8 @@ import javax.ws.rs.core.Response
 @PermitAll
 @TypeChecked
 class InventoryResource extends Resource {
+
+    Logger logger = LoggerFactory.getLogger(InventoryResource.class)
 
     private InventoryDAO inventoryDAO
     private URI endpointUri
@@ -63,14 +67,23 @@ class InventoryResource extends Resource {
     @Path('{id: [0-9a-zA-Z-]+}')
     Response deleteInventoryByID(@PathParam("id") String inventoryID) {
         Inventory inventory = inventoryDAO.getInventoryByID(inventoryID)
+        Response response
 
         if (!inventory) {
-            return notFound().build()
+            response = notFound().build()
+        } else {
+            try {
+                deleteInventory(inventory)
+                response = Response.noContent().build()
+            } catch (Exception e) {
+                logger.error("Error deleting inventory record or associated records.", e)
+                response = internalServerError(
+                        "There was a problem when deleting the inventory record. " +
+                                "It may not have been deleted.").build()
+            }
         }
 
-        deleteInventory(inventory)
-
-        Response.noContent().build()
+        response
     }
 
     private List<ResourceObject> getResourceObjects(List<Inventory> inventories) {
