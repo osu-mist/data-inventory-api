@@ -18,6 +18,7 @@ import javax.ws.rs.PathParam
 import javax.ws.rs.Produces
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
+import javax.ws.rs.core.UriBuilder
 
 @Path("inventory")
 @Produces(MediaType.APPLICATION_JSON)
@@ -26,6 +27,7 @@ import javax.ws.rs.core.Response
 class InventoryResource extends Resource {
 
     Logger logger = LoggerFactory.getLogger(InventoryResource.class)
+    UriBuilder builder = UriBuilder.fromUri(endpointUri).path(this.class).path("{id}")
 
     private InventoryDAO inventoryDAO
     private URI endpointUri
@@ -107,10 +109,17 @@ class InventoryResource extends Resource {
             )
         }
 
+        def addSelfLink = { String id ->
+            [
+                    'self': builder.build(id)
+            ]
+        }
+
         new ResourceObject(
                 id: inventory.id,
                 type: "inventory",
-                attributes: inventory
+                attributes: inventory,
+                links: addSelfLink(inventory.id)
         )
     }
 
