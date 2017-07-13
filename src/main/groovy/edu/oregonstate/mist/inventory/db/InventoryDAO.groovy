@@ -11,6 +11,7 @@ import edu.oregonstate.mist.inventory.mapper.FieldMapper
 import edu.oregonstate.mist.inventory.mapper.InventoryMapper
 import org.skife.jdbi.v2.sqlobject.Bind
 import org.skife.jdbi.v2.sqlobject.SqlQuery
+import org.skife.jdbi.v2.sqlobject.SqlUpdate
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper
 
 public interface InventoryDAO extends Closeable {
@@ -97,6 +98,36 @@ public interface InventoryDAO extends Closeable {
         """)
     @Mapper(DataSourceMapper)
     List<DataSource> getProvidedData(@Bind("inventoryID") String inventoryID)
+
+    @SqlUpdate("""
+        UPDATE INVENTORY_INVENTORY
+        SET DELETED_AT = SYSDATE
+        WHERE INVENTORY_ID = :inventoryID
+    """)
+    void deleteInventory(@Bind("inventoryID") String inventoryID)
+
+    @SqlUpdate("""
+        UPDATE INVENTORY_FIELDS
+        SET DELETED_AT = SYSDATE
+        WHERE PARENT_ID = :parentID
+        AND TYPE = :type
+    """)
+    void deleteFields(@Bind("parentID") String parentID,
+                      @Bind("type") String type)
+
+    @SqlUpdate("""
+        UPDATE INVENTORY_CONSUMING_ENTITIES
+        SET DELETED_AT = SYSDATE
+        WHERE INVENTORY_ID = :inventoryID
+    """)
+    void deleteConsumingEntities(@Bind("inventoryID") String inventoryID)
+
+    @SqlUpdate("""
+        UPDATE INVENTORY_PROVIDED_DATA
+        SET DELETED_AT = SYSDATE
+        WHERE INVENTORY_ID = :inventoryID
+    """)
+    void deleteProvidedData(@Bind("inventoryID") String inventoryID)
 
     @Override
     void close()

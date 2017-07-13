@@ -9,6 +9,7 @@ import edu.oregonstate.mist.inventory.db.InventoryDAO
 import groovy.transform.TypeChecked
 
 import javax.annotation.security.PermitAll
+import javax.ws.rs.DELETE
 import javax.ws.rs.GET
 import javax.ws.rs.Path
 import javax.ws.rs.PathParam
@@ -57,6 +58,21 @@ class InventoryResource extends Resource {
         ok(new ResultObject(data: resourceObject)).build()
     }
 
+    @Timed
+    @DELETE
+    @Path('{id: [0-9a-zA-Z-]+}')
+    Response deleteInventory(@PathParam("id") String inventoryID) {
+        Inventory inventory = inventoryDAO.getInventoryByID(inventoryID)
+
+        if (!inventory) {
+            return notFound().build()
+        }
+
+        deleteInventoryAndChildObjects(inventory)
+
+        Response.noContent().build()
+    }
+
     private List<ResourceObject> getResourceObjects(List<Inventory> inventories) {
         List<ResourceObject> resourceObjects = []
 
@@ -83,5 +99,18 @@ class InventoryResource extends Resource {
                 type: "inventory",
                 attributes: inventory
         )
+    }
+
+    private void deleteInventoryAndChildObjects(Inventory inventory) {
+        ResourceObject resourceObject = getResourceObject(inventory)
+
+        inventoryDAO.deleteInventory(resourceObject.id)
+        inventoryDAO.deleteConsumingEntities(resourceObject.id)
+        inventoryDAO.deleteProvidedData(resourceObject.id)
+        inventoryDAO.deleteFields(resourceObject.id, QUERY_DB_TYPE)
+
+        resourceObject.attributes["providedData"].each {
+            inventoryDAO.deleteFields(it["internalID"].toString(), PROVIDED_DATA_DB_TYPE)
+        }
     }
 }
