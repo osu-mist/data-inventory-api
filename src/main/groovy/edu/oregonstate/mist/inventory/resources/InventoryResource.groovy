@@ -4,8 +4,7 @@ import com.codahale.metrics.annotation.Timed
 import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.api.jsonapi.ResultObject
-import edu.oregonstate.mist.inventory.core.Inventory
-import edu.oregonstate.mist.inventory.db.InventoryDAO
+import edu.oregonstate.mist.inventory.db.InventoryDAOWrapper
 import groovy.transform.TypeChecked
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -27,17 +26,13 @@ import javax.ws.rs.core.UriBuilder
 class InventoryResource extends Resource {
 
     Logger logger = LoggerFactory.getLogger(InventoryResource.class)
-    UriBuilder builder = UriBuilder.fromUri(endpointUri).path(this.class).path("{id}")
 
-    private InventoryDAO inventoryDAO
+    private InventoryDAOWrapper inventoryDAOWrapper
     private URI endpointUri
 
-    private final String QUERY_DB_TYPE = "Query"
-    private final String PROVIDED_DATA_DB_TYPE = "Provided Data"
-
-    InventoryResource(InventoryDAO inventoryDAO, URI endpointUri) {
-        this.inventoryDAO = inventoryDAO
-        this.endpointUri = endpointUri
+    InventoryResource(InventoryDAOWrapper inventoryDAOWrapper, URI endpointUri) {
+        this.inventoryDAOWrapper = inventoryDAOWrapper
+        this.endpointUri = UriBuilder.fromUri(endpointUri).path(this.class).build()
     }
 
     /**
@@ -47,10 +42,10 @@ class InventoryResource extends Resource {
     @Timed
     @GET
     Response getAllInventories() {
-        List<Inventory> inventories = inventoryDAO.getInventories()
-        List<ResourceObject> resourceObjects = getResourceObjects(inventories)
+        List<ResourceObject> inventories = inventoryDAOWrapper.getAllInventories(
+                endpointUri)
 
-        ok(new ResultObject(data: resourceObjects)).build()
+        ok(new ResultObject(data: inventories)).build()
     }
 
     /**
@@ -62,15 +57,15 @@ class InventoryResource extends Resource {
     @GET
     @Path('{id: [0-9a-zA-Z-]+}')
     Response getInventoryByID(@PathParam("id") String inventoryID) {
-        Inventory inventory = inventoryDAO.getInventoryByID(inventoryID)
+        ResourceObject inventory = inventoryDAOWrapper.getInventoryById(
+                inventoryID, endpointUri
+        )
 
         if (!inventory) {
             return notFound().build()
         }
 
-        ResourceObject resourceObject = getResourceObject(inventory)
-
-        ok(new ResultObject(data: resourceObject)).build()
+        ok(new ResultObject(data: inventory)).build()
     }
 
     /**
@@ -82,87 +77,25 @@ class InventoryResource extends Resource {
     @DELETE
     @Path('{id: [0-9a-zA-Z-]+}')
     Response deleteInventoryByID(@PathParam("id") String inventoryID) {
-        Inventory inventory = inventoryDAO.getInventoryByID(inventoryID)
+        ResourceObject inventory = inventoryDAOWrapper.getInventoryById(
+                inventoryID, endpointUri
+        )
         Response response
 
         if (!inventory) {
             response = notFound().build()
         } else {
             try {
-                deleteInventory(inventory)
+                inventoryDAOWrapper.deleteInventory(inventoryID)
                 response = Response.noContent().build()
             } catch (Exception e) {
                 logger.error("Error deleting inventory record or associated records.", e)
                 response = internalServerError(
-                        "There was a problem when deleting the inventory record. " +
-                                "It may not have been deleted.").build()
+                        "There was a problem when deleting the inventory record.")
+                        .build()
             }
         }
 
         response
-    }
-
-    /**
-     * Get list of ResourceObjects from a list of inventory objects
-     * @param inventories
-     * @return
-     */
-    private List<ResourceObject> getResourceObjects(List<Inventory> inventories) {
-        List<ResourceObject> resourceObjects = []
-
-        inventories.each {
-            resourceObjects += getResourceObject(it)
-        }
-
-        resourceObjects
-    }
-
-    /**
-     * Create a single ResourceObject from an inventory object.
-     * Calls DAO methods to get objects associated with inventory object.
-     * @param inventory
-     * @return Complete ResourceObject
-     */
-    private ResourceObject getResourceObject (Inventory inventory) {
-        inventory.apiQueryParams = inventoryDAO.getFields(QUERY_DB_TYPE, inventory.id)
-        inventory.consumingEntities = inventoryDAO.getConsumingEntities(inventory.id)
-        inventory.providedData = inventoryDAO.getProvidedData(inventory.id)
-
-        inventory.providedData.each {
-            it.fields = inventoryDAO.getFields(
-                    PROVIDED_DATA_DB_TYPE, it.internalID
-            )
-        }
-
-        def addSelfLink = { String id ->
-            [
-                    'self': builder.build(id)
-            ]
-        }
-
-        new ResourceObject(
-                id: inventory.id,
-                type: "inventory",
-                attributes: inventory,
-                links: addSelfLink(inventory.id)
-        )
-    }
-
-    /**
-     * Call DAO methods to delete inventory object
-     * and its associated objects.
-     * @param inventory
-     */
-    private void deleteInventory(Inventory inventory) {
-        ResourceObject resourceObject = getResourceObject(inventory)
-
-        inventoryDAO.deleteInventory(resourceObject.id)
-        inventoryDAO.deleteConsumingEntities(resourceObject.id)
-        inventoryDAO.deleteProvidedData(resourceObject.id)
-        inventoryDAO.deleteFields(resourceObject.id, QUERY_DB_TYPE)
-
-        resourceObject.attributes["providedData"].each {
-            inventoryDAO.deleteFields(it["internalID"].toString(), PROVIDED_DATA_DB_TYPE)
-        }
     }
 }

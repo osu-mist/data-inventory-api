@@ -3,6 +3,7 @@ package edu.oregonstate.mist.inventory
 import edu.oregonstate.mist.api.Application
 import edu.oregonstate.mist.api.Configuration
 import edu.oregonstate.mist.inventory.db.InventoryDAO
+import edu.oregonstate.mist.inventory.db.InventoryDAOWrapper
 import edu.oregonstate.mist.inventory.health.InventoryHealthCheck
 import edu.oregonstate.mist.inventory.resources.InventoryResource
 import io.dropwizard.jdbi.DBIFactory
@@ -26,7 +27,8 @@ class InventoryApplication extends Application<InventoryConfiguration> {
         DBIFactory factory = new DBIFactory()
         DBI jdbi = factory.build(environment, configuration.getDataSourceFactory(), "jdbi")
         InventoryDAO inventoryDAO = jdbi.onDemand(InventoryDAO.class)
-        environment.jersey().register(new InventoryResource(inventoryDAO,
+        InventoryDAOWrapper inventoryDAOWrapper = new InventoryDAOWrapper(inventoryDAO)
+        environment.jersey().register(new InventoryResource(inventoryDAOWrapper,
                 configuration.api.endpointUri))
 
         InventoryHealthCheck healthCheck = new InventoryHealthCheck(inventoryDAO)

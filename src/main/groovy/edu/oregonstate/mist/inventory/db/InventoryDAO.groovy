@@ -1,6 +1,5 @@
 package edu.oregonstate.mist.inventory.db
 
-import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.inventory.core.ConsumingEntity
 import edu.oregonstate.mist.inventory.core.DataSource
 import edu.oregonstate.mist.inventory.core.Field
@@ -133,7 +132,7 @@ public interface InventoryDAO extends Closeable {
         SET DELETED_AT = SYSDATE
         WHERE INVENTORY_ID = :inventoryID
     """)
-    void deleteInventory(@Bind("inventoryID") String inventoryID)
+    abstract void deleteInventory(@Bind("inventoryID") String inventoryID)
 
     /**
      * Soft delete field objects
@@ -143,11 +142,9 @@ public interface InventoryDAO extends Closeable {
     @SqlUpdate("""
         UPDATE INVENTORY_FIELDS
         SET DELETED_AT = SYSDATE
-        WHERE PARENT_ID = :parentID
-        AND TYPE = :type
+        WHERE INVENTORY_ID = :inventoryID
     """)
-    void deleteFields(@Bind("parentID") String parentID,
-                      @Bind("type") String type)
+    abstract void deleteFields(@Bind("inventoryID") String inventoryID)
 
     /**
      * Soft delete consuming entity objects
@@ -158,7 +155,7 @@ public interface InventoryDAO extends Closeable {
         SET DELETED_AT = SYSDATE
         WHERE INVENTORY_ID = :inventoryID
     """)
-    void deleteConsumingEntities(@Bind("inventoryID") String inventoryID)
+    abstract void deleteConsumingEntities(@Bind("inventoryID") String inventoryID)
 
     /**
      * Soft delete provided data objects
@@ -169,7 +166,7 @@ public interface InventoryDAO extends Closeable {
         SET DELETED_AT = SYSDATE
         WHERE INVENTORY_ID = :inventoryID
     """)
-    void deleteProvidedData(@Bind("inventoryID") String inventoryID)
+    abstract void deleteProvidedData(@Bind("inventoryID") String inventoryID)
 
     @Override
     void close()
