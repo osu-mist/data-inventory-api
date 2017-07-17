@@ -1,6 +1,5 @@
 package edu.oregonstate.mist.inventory.mapper
 
-import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.inventory.core.Inventory
 import org.skife.jdbi.v2.StatementContext
 import org.skife.jdbi.v2.tweak.ResultSetMapper
@@ -19,13 +18,23 @@ class InventoryMapper implements ResultSetMapper<Inventory> {
                 description: rs.getString("DESCRIPTION"),
                 type: rs.getString("TYPE"),
                 otherType: rs.getString("OTHER_TYPE"),
-                created: (rs.getString("CREATED_AT")) ?
-                        ZonedDateTime.parse(rs.getString("CREATED_AT"), dbFormatter) : null,
-                updated: (rs.getString("UPDATED_AT")) ?
-                        ZonedDateTime.parse(rs.getString("UPDATED_AT"), dbFormatter) : null
+                created: dbParser(rs.getString("CREATED_AT")),
+                updated: dbParser(rs.getString("UPDATED_AT"))
         )
     }
 
+    /**
+     * Parse date string for DB into ZonedDateTime
+     * @param dateString
+     * @return ZonedDateTime
+     */
+    private static ZonedDateTime dbParser(String dateString) {
+        dateString ? ZonedDateTime.parse(dateString, dbFormatter) : null
+    }
+
+    /**
+     * Constant for format and timezone of date returned from DB.
+     */
     private static DateTimeFormatter dbFormatter = DateTimeFormatter
             .ofPattern("yyyy-MM-dd HH:mm:ss")
             .withZone(ZoneId.of("UTC"))
