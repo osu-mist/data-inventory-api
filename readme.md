@@ -1,6 +1,17 @@
-# Data Inventory API
+# Inventory API
 
 API to retrive, create, and update records that contain information about what data is being exposed.
+
+## Endpoints
+
+### GET /inventory
+Get all inventory objects.
+
+### GET /inventory/{inventoryID}
+Get a single inventory object by ID.
+
+### DELETE /inventory/{inventoryID}
+Delete a single inventory object by ID.
 
 ### Generate Keys
 

@@ -33,6 +33,7 @@ CREATE TABLE apismgr.INVENTORY_FIELDS
     FIELD_ID               NUMBER NOT NULL,
     CLIENT_FIELD_ID        VARCHAR2(36) NOT NULL,
     PARENT_ID              VARCHAR2(36) NOT NULL,
+    INVENTORY_ID           VARCHAR2(36) NOT NULL,
     FIELD                  VARCHAR2(256),
     DESCRIPTION            CLOB,
     TYPE                   VARCHAR2(256) NOT NULL,
@@ -53,6 +54,7 @@ COMMENT ON TABLE apismgr.INVENTORY_FIELDS IS 'Contains fields given to entities,
 COMMENT ON COLUMN apismgr.INVENTORY_FIELDS.FIELD_ID IS 'Primary key. For internal use only. Not seen by client.';
 COMMENT ON COLUMN apismgr.INVENTORY_FIELDS.CLIENT_FIELD_ID IS 'Able to be generated and seen by client.';
 COMMENT ON COLUMN apismgr.INVENTORY_FIELDS.PARENT_ID IS 'ID of parent object.';
+COMMENT ON COLUMN apismgr.INVENTORY_FIELDS.INVENTORY_ID IS 'ID of top level inventory object';
 COMMENT ON COLUMN apismgr.INVENTORY_FIELDS.FIELD IS 'Name of field.';
 COMMENT ON COLUMN apismgr.INVENTORY_FIELDS.DESCRIPTION is 'Description of field.';
 COMMENT ON COLUMN apismgr.INVENTORY_FIELDS.TYPE is 'Whether field is provided data or used as an API query parameter.';
