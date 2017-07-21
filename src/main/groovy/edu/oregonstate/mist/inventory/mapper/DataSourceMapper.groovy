@@ -10,7 +10,6 @@ import java.sql.SQLException
 class DataSourceMapper implements ResultSetMapper<DataSource> {
     public DataSource map (int i, ResultSet rs, StatementContext sc) throws SQLException {
         new DataSource(
-                internalID: rs.getString("DATA_ID"),
                 sourceID: rs.getString("CLIENT_DATA_ID"),
                 source: rs.getString("SOURCE"),
                 sourceDescription: rs.getString("SOURCE_DESCRIPTION"),

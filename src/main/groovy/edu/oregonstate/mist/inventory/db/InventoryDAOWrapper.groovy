@@ -1,6 +1,10 @@
 package edu.oregonstate.mist.inventory.db
 
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
+import edu.oregonstate.mist.api.jsonapi.ResultObject
+import edu.oregonstate.mist.inventory.core.ConsumingEntity
+import edu.oregonstate.mist.inventory.core.DataSource
+import edu.oregonstate.mist.inventory.core.Field
 import edu.oregonstate.mist.inventory.core.Inventory
 import org.skife.jdbi.v2.sqlobject.Transaction
 
@@ -8,12 +12,14 @@ import javax.ws.rs.core.UriBuilder
 
 class InventoryDAOWrapper {
     private InventoryDAO inventoryDAO
+    private URI selfLinkBase
 
     private final String QUERY_DB_TYPE = "Query"
     private final String PROVIDED_DATA_DB_TYPE = "Provided Data"
 
-    InventoryDAOWrapper(InventoryDAO inventoryDao) {
+    InventoryDAOWrapper(InventoryDAO inventoryDao, URI selfLinkBase) {
         this.inventoryDAO = inventoryDao
+        this.selfLinkBase = selfLinkBase
     }
 
     /**
@@ -22,12 +28,12 @@ class InventoryDAOWrapper {
      * @param selfLinkBase
      * @return
      */
-    public ResourceObject getInventoryById(String inventoryID, URI selfLinkBase) {
+    public ResourceObject getInventoryById(String inventoryID) {
         Inventory inventory = inventoryDAO.getInventoryByID(inventoryID)
         ResourceObject completeInventory
 
         if (inventory) {
-            completeInventory = inventoryBuilder(inventory, selfLinkBase)
+            completeInventory = inventoryBuilder(inventory)
         }
 
         completeInventory
@@ -38,12 +44,12 @@ class InventoryDAOWrapper {
      * @param selfLinkBase
      * @return
      */
-    public List<ResourceObject> getAllInventories(URI selfLinkBase) {
+    public List<ResourceObject> getAllInventories() {
         List<Inventory> baseInventories = inventoryDAO.getInventories()
         List<ResourceObject> completeInventories = []
 
         baseInventories.each {
-            completeInventories += inventoryBuilder(it, selfLinkBase)
+            completeInventories += inventoryBuilder(it)
         }
 
         completeInventories
@@ -56,14 +62,21 @@ class InventoryDAOWrapper {
      * @param selfLinkBase
      * @return
      */
-    private ResourceObject inventoryBuilder(Inventory inventory, URI selfLinkBase) {
-        inventory.apiQueryParams = inventoryDAO.getFields(QUERY_DB_TYPE, inventory.id)
+    private ResourceObject inventoryBuilder(Inventory inventory) {
+        inventory.apiQueryParams = inventoryDAO.getFields(
+                QUERY_DB_TYPE,
+                inventory.id,
+                inventory.id
+        )
+
         inventory.consumingEntities = inventoryDAO.getConsumingEntities(inventory.id)
         inventory.providedData = inventoryDAO.getProvidedData(inventory.id)
 
         inventory.providedData.each {
             it.fields = inventoryDAO.getFields(
-                    PROVIDED_DATA_DB_TYPE, it.internalID
+                    PROVIDED_DATA_DB_TYPE,
+                    it.sourceID,
+                    inventory.id
             )
         }
 
@@ -81,6 +94,47 @@ class InventoryDAOWrapper {
                 attributes: inventory,
                 links: addSelfLink(inventory.id)
         )
+    }
+
+    private Inventory resultObjectToInventory(ResultObject resultObject) {
+        Inventory inventory
+
+        inventory = (Inventory) resultObject.data['attributes']
+        inventory.apiQueryParams = (List<Field>) inventory.apiQueryParams
+        inventory.consumingEntities = (List<ConsumingEntity>) inventory.consumingEntities
+        inventory.providedData = (List<DataSource>) inventory.providedData
+
+        inventory.providedData.each {
+            it.fields = (List<Field>) it.fields
+        }
+
+        inventory
+    }
+
+    @Transaction
+    public void createInventory(Inventory inventory) {
+        inventoryDAO.createInventory(inventory)
+
+        inventory.apiQueryParams.each { queryParam ->
+            inventoryDAO.createField((Field) queryParam, inventory.id, QUERY_DB_TYPE, inventory.id)
+        }
+
+        inventory.consumingEntities.each { consumingEntity ->
+            inventoryDAO.createConsumingEntity((ConsumingEntity) consumingEntity, inventory.id)
+        }
+
+        inventory.providedData.each { dataSource ->
+            inventoryDAO.createProvidedData((DataSource) dataSource, inventory.id)
+
+            dataSource.fields.each { field ->
+                inventoryDAO.createField(
+                        (Field) field,
+                        dataSource.sourceID,
+                        PROVIDED_DATA_DB_TYPE,
+                        inventory.id
+                )
+            }
+        }
     }
 
     /**

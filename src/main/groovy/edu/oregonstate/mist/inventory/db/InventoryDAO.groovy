@@ -9,6 +9,7 @@ import edu.oregonstate.mist.inventory.mapper.DataSourceMapper
 import edu.oregonstate.mist.inventory.mapper.FieldMapper
 import edu.oregonstate.mist.inventory.mapper.InventoryMapper
 import org.skife.jdbi.v2.sqlobject.Bind
+import org.skife.jdbi.v2.sqlobject.BindBean
 import org.skife.jdbi.v2.sqlobject.SqlQuery
 import org.skife.jdbi.v2.sqlobject.SqlUpdate
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper
@@ -72,11 +73,13 @@ public interface InventoryDAO extends Closeable {
         FROM INVENTORY_FIELDS
         WHERE PARENT_ID = :parentID
         AND TYPE = :type
+        AND INVENTORY_ID = :inventoryID
         AND DELETED_AT IS NULL
         """)
     @Mapper(FieldMapper)
     List<Field> getFields(@Bind("type") String type,
-                          @Bind("parentID") String parentID)
+                          @Bind("parentID") String parentID,
+                          @Bind("inventoryID") String inventoryID)
 
     /**
      * Get consuming entities for an inventory object
@@ -123,6 +126,89 @@ public interface InventoryDAO extends Closeable {
     @Mapper(DataSourceMapper)
     List<DataSource> getProvidedData(@Bind("inventoryID") String inventoryID)
 
+    @SqlUpdate("""
+        INSERT INTO INVENTORY_INVENTORY (
+            INVENTORY_ID, NAME, DESCRIPTION,
+            TYPE, OTHER_TYPE, CREATED_AT
+            )
+        VALUES (
+            :id,
+            :name,
+            :description,
+            :type,
+            :otherType,
+            SYSDATE
+            )
+        """)
+    abstract void createInventory(@BindBean Inventory inventory)
+
+    @SqlUpdate("""
+        INSERT INTO INVENTORY_FIELDS (
+            FIELD_ID, CLIENT_FIELD_ID, PARENT_ID,
+            FIELD, DESCRIPTION, TYPE, CREATED_AT, INVENTORY_ID
+            )
+        VALUES (
+            INVENTORY_FIELDS_SEQ.NEXTVAL,
+            :fieldID,
+            :parentID,
+            :field,
+            :description,
+            :type,
+            SYSDATE,
+            :inventoryID
+            )
+        """)
+    abstract void createField(@BindBean Field field,
+                              @Bind("parentID") String parentID,
+                              @Bind("type") String type,
+                              @Bind("inventoryID") String inventoryID)
+
+    @SqlUpdate("""
+        INSERT INTO INVENTORY_CONSUMING_ENTITIES (
+            ENTITY_ID, CLIENT_ENTITY_ID, INVENTORY_ID,
+            ENTITY_NAME, APPLICATION_NAME, ENTITY_CONTACT_NAME,
+            ENTITY_EMAIL, ENTITY_PHONE, ENTITY_URL, INTERNAL,
+            MOU, CREATED_AT
+            )
+        VALUES (
+            INVENTORY_CONSUMERS_SEQ.NEXTVAL,
+            :entityID,
+            :inventoryID,
+            :entityName,
+            :applicationName,
+            :entityContactName,
+            :entityEmail,
+            :entityPhone,
+            :entityUrl,
+            :internal,
+            :mou,
+            SYSDATE
+            )
+        """)
+    abstract void createConsumingEntity(@BindBean ConsumingEntity consumingEntity,
+                                        @Bind("inventoryID") String inventoryID)
+
+    @SqlUpdate("""
+        INSERT INTO INVENTORY_PROVIDED_DATA (
+            DATA_ID, CLIENT_DATA_ID, INVENTORY_ID,
+            SOURCE, SOURCE_DESCRIPTION, SOURCE_TYPE,
+            OTHER_SOURCE_TYPE, API_URL, INTERNAL, CREATED_AT
+            )
+        VALUES (
+            INVENTORY_PROVIDED_DATA_SEQ.NEXTVAL,
+            :sourceID,
+            :inventoryID,
+            :source,
+            :sourceDescription,
+            :sourceType,
+            :otherSourceType,
+            :apiUrl,
+            :internal,
+            SYSDATE
+            )
+        """)
+    abstract void createProvidedData(@BindBean DataSource dataSource,
+                                     @Bind("inventoryID") String inventoryID)
     /**
      * Soft delete inventory object
      * @param inventoryID
