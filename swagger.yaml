@@ -218,6 +218,10 @@ definitions:
               type: string
               format: url
               description: Link to memorandum of understanding document.
+            dataManagementRequest:
+              type: string
+              format: url
+              description: Link to data management request document.
       providedData:
         type: array
         description: What data is being exposed or transferred?

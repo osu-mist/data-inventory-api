@@ -21,22 +21,6 @@ class Inventory {
 
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss'Z'", timezone="UTC")
     ZonedDateTime updated
-
-    @Override
-    public String toString() {
-        "Inventory{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", type='" + type + '\'' +
-                ", otherType='" + otherType + '\'' +
-                ", apiQueryParams=" + apiQueryParams +
-                ", consumingEntities=" + consumingEntities +
-                ", providedData=" + providedData +
-                ", created=" + created +
-                ", updated=" + updated +
-                '}'
-    }
 }
 
 class Field {
@@ -55,6 +39,7 @@ class ConsumingEntity {
     String entityUrl
     Boolean internal
     String mou
+    String dataManagementRequest
 }
 
 class DataSource {

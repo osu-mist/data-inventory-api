@@ -75,6 +75,7 @@ CREATE TABLE apismgr.INVENTORY_CONSUMING_ENTITIES
     ENTITY_URL             VARCHAR2(1024),
     INTERNAL               VARCHAR2(1) NOT NULL,
     MOU                    VARCHAR2(1024),
+    DMR                    VARCHAR2(1024),
     CREATED_AT             DATE NOT NULL,
     UPDATED_AT             DATE,
     DELETED_AT             DATE,
@@ -100,6 +101,7 @@ COMMENT ON COLUMN apismgr.INVENTORY_CONSUMING_ENTITIES.ENTITY_PHONE IS 'Phone nu
 COMMENT ON COLUMN apismgr.INVENTORY_CONSUMING_ENTITIES.ENTITY_URL IS 'Website of entity.';
 COMMENT ON COLUMN apismgr.INVENTORY_CONSUMING_ENTITIES.INTERNAL IS 'If false, the entity is a third-party vendor governed outside the scope of the university.';
 COMMENT ON COLUMN apismgr.INVENTORY_CONSUMING_ENTITIES.MOU IS 'URL of memorandum of understanding document.';
+COMMENT ON COLUMN apismgr.INVENTORY_CONSUMING_ENTITIES.DMR IS 'URL of data management request document.';
 COMMENT ON COLUMN apismgr.INVENTORY_CONSUMING_ENTITIES.CREATED_AT IS 'Stores SYSDATE when entity record was created.';
 COMMENT ON COLUMN apismgr.INVENTORY_CONSUMING_ENTITIES.UPDATED_AT IS 'Stores SYSDATE when entity record was updated.';
 COMMENT ON COLUMN apismgr.INVENTORY_CONSUMING_ENTITIES.DELETED_AT IS 'Stores SYSDATE when entity record was deleted.';
