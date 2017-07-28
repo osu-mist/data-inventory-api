@@ -18,7 +18,8 @@ class ConsumingEntityMapper implements ResultSetMapper<ConsumingEntity> {
                 entityPhone: rs.getString("ENTITY_PHONE"),
                 entityUrl: rs.getString("ENTITY_URL"),
                 internal: rs.getBoolean("INTERNAL"),
-                mou: rs.getString("MOU")
+                mou: rs.getString("MOU"),
+                dataManagementRequest: rs.getString("DMR")
         )
     }
 }

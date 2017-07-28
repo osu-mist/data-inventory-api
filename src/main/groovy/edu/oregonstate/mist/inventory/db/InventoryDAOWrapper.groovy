@@ -96,21 +96,6 @@ class InventoryDAOWrapper {
         )
     }
 
-    private Inventory resultObjectToInventory(ResultObject resultObject) {
-        Inventory inventory
-
-        inventory = (Inventory) resultObject.data['attributes']
-        inventory.apiQueryParams = (List<Field>) inventory.apiQueryParams
-        inventory.consumingEntities = (List<ConsumingEntity>) inventory.consumingEntities
-        inventory.providedData = (List<DataSource>) inventory.providedData
-
-        inventory.providedData.each {
-            it.fields = (List<Field>) it.fields
-        }
-
-        inventory
-    }
-
     @Transaction
     public void createInventory(Inventory inventory) {
         inventoryDAO.createInventory(inventory)

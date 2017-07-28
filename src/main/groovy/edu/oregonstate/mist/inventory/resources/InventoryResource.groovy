@@ -6,6 +6,9 @@ import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.api.jsonapi.ResultObject
 import edu.oregonstate.mist.inventory.ErrorMessages
+import edu.oregonstate.mist.inventory.core.ConsumingEntity
+import edu.oregonstate.mist.inventory.core.DataSource
+import edu.oregonstate.mist.inventory.core.Field
 import edu.oregonstate.mist.inventory.core.Inventory
 import edu.oregonstate.mist.inventory.db.InventoryDAOWrapper
 import groovy.transform.TypeChecked
@@ -36,11 +39,28 @@ class InventoryResource extends Resource {
     Logger logger = LoggerFactory.getLogger(InventoryResource.class)
 
     private InventoryDAOWrapper inventoryDAOWrapper
-    private URI endpointUri
 
-    //used to check if client-generated id is a valid UUID
+    // used to check if client-generated id is a valid UUID
     private final String uuidRegEx =
             "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[34][0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}"
+
+    private List<String> allowedTypes = ['API', 'Talend', 'Other']
+
+    private String prettyAllowedTypes() {
+        String prettyString = ""
+
+        allowedTypes.each {
+            if (it == allowedTypes.last()) {
+                prettyString += " or "
+            } else if (it != allowedTypes.first()) {
+                prettyString += ", "
+            }
+
+            prettyString += it
+        }
+
+        prettyString
+    }
 
     InventoryResource(InventoryDAOWrapper inventoryDAOWrapper) {
         this.inventoryDAOWrapper = inventoryDAOWrapper
@@ -132,39 +152,64 @@ class InventoryResource extends Resource {
 
     private List<Error> getErrors(ResultObject resultObject) {
         List<Error> errors = []
-        ResourceObject resourceObject
-        Inventory inventory
 
         // Invalid UUID
         if (resultObject.data["id"]) {
             String id = resultObject.data["id"]
 
             if (!id.matches(uuidRegEx)) {
-                errors.add(Error.badRequest(ErrorMessages.invalidUUID))
+                errors.add(ErrorMessages.invalidUUID())
             }
 
             if (inventoryDAOWrapper.getInventoryById(id)) {
-                errors.add(Error.badRequest(ErrorMessages.idExists))
+                errors.add(ErrorMessages.idExists())
             }
         }
 
         // Try casting resultObject as Inventory object.
         try {
-            resultObjectToInventory(resultObject)
+            testConversion(resultObject)
         } catch (GroovyCastException e) {
-            errors.add(Error.badRequest(ErrorMessages.castError))
+            errors.add(ErrorMessages.castError())
 
             // If it can't cast the ResultObject as an Inventory object, return.
             return errors
         }
 
+        Inventory inventory = resultObjectToInventory(resultObject)
+
         // Type is either API, Talend, or Other
+        if (!(inventory.type in allowedTypes)) {
+            errors.add(ErrorMessages.badType(prettyAllowedTypes()))
+        }
+
         // If Type is Other, otherType may not be null
-        // Check valid attributes
-        // Check valid query params
-        // Check valid consuming entities
-        // Check valid provided data
+        if (inventory.type == "Other" && !inventory.otherType) {
+            errors.add(ErrorMessages.otherType())
+        }
 
         errors
+    }
+
+    public void testConversion(ResultObject resultObject) {
+        Inventory inventory
+
+        inventory = resultObjectToInventory(resultObject)
+
+        inventory.apiQueryParams.each { field ->
+            (Field) field
+        }
+
+        inventory.consumingEntities.each { consumingEntity ->
+            (ConsumingEntity) consumingEntity
+        }
+
+        inventory.providedData.each { dataSource ->
+            (DataSource) dataSource
+
+            dataSource.fields.each { field ->
+                (Field) field
+            }
+        }
     }
 }

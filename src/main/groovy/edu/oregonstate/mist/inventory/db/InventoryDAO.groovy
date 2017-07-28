@@ -96,7 +96,8 @@ public interface InventoryDAO extends Closeable {
             ENTITY_PHONE,
             ENTITY_URL,
             INTERNAL,
-            MOU
+            MOU,
+            DMR
         FROM INVENTORY_CONSUMING_ENTITIES
         WHERE INVENTORY_ID = :inventoryID
         AND DELETED_AT IS NULL
@@ -168,7 +169,7 @@ public interface InventoryDAO extends Closeable {
             ENTITY_ID, CLIENT_ENTITY_ID, INVENTORY_ID,
             ENTITY_NAME, APPLICATION_NAME, ENTITY_CONTACT_NAME,
             ENTITY_EMAIL, ENTITY_PHONE, ENTITY_URL, INTERNAL,
-            MOU, CREATED_AT
+            MOU, DMR, CREATED_AT
             )
         VALUES (
             INVENTORY_CONSUMERS_SEQ.NEXTVAL,
@@ -182,6 +183,7 @@ public interface InventoryDAO extends Closeable {
             :entityUrl,
             :internal,
             :mou,
+            :dataManagementRequest,
             SYSDATE
             )
         """)
