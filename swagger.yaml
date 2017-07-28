@@ -249,7 +249,7 @@ definitions:
       sourceType:
         type: string
         description: >
-          Type of data source being accessed directly. Possible values are "api", "database", or "other".
+          Type of data source being accessed directly. Possible values are "API", "Database", or "Other".
       otherSourceType:
         type: string
         description: "Explanation if sourceType is 'other'"
