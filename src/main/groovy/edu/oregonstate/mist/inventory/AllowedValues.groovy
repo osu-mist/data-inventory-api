@@ -8,6 +8,10 @@ class AllowedValues {
         this.list = allowedTypes
     }
 
+    /**
+     * Create english sentence from list of strings.
+     * @return
+     */
     public String pretty() {
         String prettyString = ""
 

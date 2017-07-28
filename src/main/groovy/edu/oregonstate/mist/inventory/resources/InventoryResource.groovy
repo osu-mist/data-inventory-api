@@ -82,6 +82,11 @@ class InventoryResource extends Resource {
         ok(new ResultObject(data: inventory)).build()
     }
 
+    /**
+     * Create a new inventory object
+     * @param newResultObject
+     * @return
+     */
     @Timed
     @POST
     Response createInventory(@Valid ResultObject newResultObject) {
@@ -132,10 +137,20 @@ class InventoryResource extends Resource {
         response
     }
 
+    /**
+     * Cast attributes object in resultObject as Inventory object
+     * @param resultObject
+     * @return
+     */
     private Inventory resultObjectToInventory(ResultObject resultObject) {
         (Inventory) resultObject.data['attributes']
     }
 
+    /**
+     * Check user-submitted resultObject for errors
+     * @param resultObject
+     * @return
+     */
     public List<Error> getErrors(ResultObject resultObject) {
         List<Error> errors = []
 
@@ -191,6 +206,10 @@ class InventoryResource extends Resource {
         errors
     }
 
+    /**
+     * Test casting inventory object and various subclasses.
+     * @param resultObject
+     */
     public void testConversion(ResultObject resultObject) {
         Inventory inventory
 

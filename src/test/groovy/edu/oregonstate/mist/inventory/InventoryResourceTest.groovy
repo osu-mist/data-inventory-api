@@ -9,6 +9,9 @@ class InventoryResourceTest {
 
     private InventoryResource inventoryResource = new InventoryResource(null)
 
+    /**
+     * Test that a known-good inventory doesn't return errors
+     */
     @Test
     public void testGoodInventory() {
         def goodInventory = [
@@ -76,6 +79,9 @@ class InventoryResourceTest {
         assert getErrorCount(goodInventory) == 0
     }
 
+    /**
+     * Test that an object with an unrecognized field returns errors.
+     */
     @Test
     public void testMalformedInventory() {
         def badInventory = ['name': 'Test Name',
@@ -84,6 +90,9 @@ class InventoryResourceTest {
         assert getErrorCount(badInventory) == 1
     }
 
+    /**
+     * Test various inventory types return errors as necessary.
+     */
     @Test
     public void testInventoryTypes() {
         def badType = ['type': 'BadType']
@@ -102,6 +111,9 @@ class InventoryResourceTest {
         assert getErrorCount(goodType) == 0
     }
 
+    /**
+     * Test various source types return errors as necessary.
+     */
     @Test
     public void testSourceTypes() {
         def inventoryWithProvidedData = [
@@ -135,10 +147,20 @@ class InventoryResourceTest {
         assert getErrorCount(inventoryWithProvidedData) == 0
     }
 
+    /**
+     * Get number of errors from inventory object
+     * @param inventory
+     * @return
+     */
     private Integer getErrorCount(def inventory) {
         inventoryResource.getErrors(inventoryToResultObject(inventory)).size()
     }
 
+    /**
+     * Create ResultObject from inventory object.
+     * @param inventory
+     * @return
+     */
     private inventoryToResultObject(def inventory) {
         new ResultObject(
                 data: new ResourceObject(attributes: inventory)
