@@ -53,7 +53,7 @@ class InventoryResource extends Resource {
     }
 
     /**
-     * Get all inventory objects that aren't deleted
+     * Get all inventory objects that aren't deleted.
      * @return
      */
     @Timed
@@ -65,7 +65,7 @@ class InventoryResource extends Resource {
     }
 
     /**
-     * Get one inventory object by ID
+     * Get one inventory object by ID.
      * @param inventoryID
      * @return
      */
@@ -83,7 +83,7 @@ class InventoryResource extends Resource {
     }
 
     /**
-     * Create a new inventory object
+     * Create a new inventory object.
      * @param newResultObject
      * @return
      */
@@ -109,7 +109,7 @@ class InventoryResource extends Resource {
     }
 
     /**
-     * Delete one inventory object by ID
+     * Delete one inventory object by ID.
      * @param inventoryID
      * @return
      */
@@ -138,7 +138,7 @@ class InventoryResource extends Resource {
     }
 
     /**
-     * Cast attributes object in resultObject as Inventory object
+     * Cast attributes object in resultObject as Inventory object.
      * @param resultObject
      * @return
      */
@@ -147,7 +147,7 @@ class InventoryResource extends Resource {
     }
 
     /**
-     * Check user-submitted resultObject for errors
+     * Check user-submitted resultObject for errors.
      * @param resultObject
      * @return
      */
@@ -183,7 +183,8 @@ class InventoryResource extends Resource {
         if (!inventory.type) {
             errors.add(ErrorMessages.noType(allowedTypes.pretty()))
         } else if (!(inventory.type in allowedTypes.list)) {
-            errors.add(ErrorMessages.badType(inventory.type, allowedTypes.pretty()))
+            errors.add(ErrorMessages.badType(
+                    inventory.type.toString(), allowedTypes.pretty()))
         }
 
         // If Type is Other, otherType may not be null.
@@ -195,7 +196,8 @@ class InventoryResource extends Resource {
             if (!it.sourceType) {
                 errors.add(ErrorMessages.noSourceType(allowedSourceTypes.pretty()))
             } else if (!(it.sourceType in allowedSourceTypes.list)) {
-                errors.add(ErrorMessages.badSourceType(it.sourceType, allowedSourceTypes.pretty()))
+                errors.add(ErrorMessages.badSourceType(
+                        it.sourceType.toString(), allowedSourceTypes.pretty()))
             }
 
             if (it.sourceType == "Other" && !it.otherSourceType) {

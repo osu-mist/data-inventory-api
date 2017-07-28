@@ -10,7 +10,7 @@ class InventoryResourceTest {
     private InventoryResource inventoryResource = new InventoryResource(null)
 
     /**
-     * Test that a known-good inventory doesn't return errors
+     * Test that a known-good inventory doesn't return errors.
      */
     @Test
     public void testGoodInventory() {
@@ -148,7 +148,7 @@ class InventoryResourceTest {
     }
 
     /**
-     * Get number of errors from inventory object
+     * Get number of errors from inventory object.
      * @param inventory
      * @return
      */
