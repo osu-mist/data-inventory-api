@@ -5,6 +5,7 @@ import edu.oregonstate.mist.api.Error
 import edu.oregonstate.mist.api.Resource
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
 import edu.oregonstate.mist.api.jsonapi.ResultObject
+import edu.oregonstate.mist.inventory.AllowedValues
 import edu.oregonstate.mist.inventory.ErrorMessages
 import edu.oregonstate.mist.inventory.core.ConsumingEntity
 import edu.oregonstate.mist.inventory.core.DataSource
@@ -44,23 +45,8 @@ class InventoryResource extends Resource {
     private final String uuidRegEx =
             "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[34][0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}"
 
-    private List<String> allowedTypes = ['API', 'Talend', 'Other']
-
-    private String prettyAllowedTypes() {
-        String prettyString = ""
-
-        allowedTypes.each {
-            if (it == allowedTypes.last()) {
-                prettyString += " or "
-            } else if (it != allowedTypes.first()) {
-                prettyString += ", "
-            }
-
-            prettyString += it
-        }
-
-        prettyString
-    }
+    AllowedValues allowedTypes = new AllowedValues(['API', 'Talend', 'Other'])
+    AllowedValues allowedSourceTypes = new AllowedValues(['API', 'Database', 'Other'])
 
     InventoryResource(InventoryDAOWrapper inventoryDAOWrapper) {
         this.inventoryDAOWrapper = inventoryDAOWrapper
@@ -150,7 +136,7 @@ class InventoryResource extends Resource {
         (Inventory) resultObject.data['attributes']
     }
 
-    private List<Error> getErrors(ResultObject resultObject) {
+    public List<Error> getErrors(ResultObject resultObject) {
         List<Error> errors = []
 
         // Invalid UUID
@@ -178,14 +164,28 @@ class InventoryResource extends Resource {
 
         Inventory inventory = resultObjectToInventory(resultObject)
 
-        // Type is either API, Talend, or Other
-        if (!(inventory.type in allowedTypes)) {
-            errors.add(ErrorMessages.badType(prettyAllowedTypes()))
+        // Type is not null and is an allowed type.
+        if (!inventory.type) {
+            errors.add(ErrorMessages.noType(allowedTypes.pretty()))
+        } else if (!(inventory.type in allowedTypes.list)) {
+            errors.add(ErrorMessages.badType(inventory.type, allowedTypes.pretty()))
         }
 
-        // If Type is Other, otherType may not be null
+        // If Type is Other, otherType may not be null.
         if (inventory.type == "Other" && !inventory.otherType) {
             errors.add(ErrorMessages.otherType())
+        }
+
+        inventory.providedData.each {
+            if (!it.sourceType) {
+                errors.add(ErrorMessages.noSourceType(allowedSourceTypes.pretty()))
+            } else if (!(it.sourceType in allowedSourceTypes.list)) {
+                errors.add(ErrorMessages.badSourceType(it.sourceType, allowedSourceTypes.pretty()))
+            }
+
+            if (it.sourceType == "Other" && !it.otherSourceType) {
+                errors.add(ErrorMessages.otherSourceType())
+            }
         }
 
         errors
