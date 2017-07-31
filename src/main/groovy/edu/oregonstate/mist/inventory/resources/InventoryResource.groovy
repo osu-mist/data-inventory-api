@@ -97,11 +97,15 @@ class InventoryResource extends Resource {
 
         inventoryDAOWrapper.createInventory(newInventory)
 
-        ResultObject newCreatedInventory = new ResultObject(
-                data: (inventoryDAOWrapper.getInventoryById(newInventory.id))
-        )
+        ResourceObject newInventoryFromDB = inventoryDAOWrapper.getInventoryById(newInventory.id)
 
-        created(newCreatedInventory).build()
+        if (!newInventoryFromDB) {
+            internalServerError(ErrorMessages.getInventoryError()).build()
+        } else {
+            created(new ResultObject(
+                    data: newInventoryFromDB
+            )).build()
+        }
     }
 
     /**

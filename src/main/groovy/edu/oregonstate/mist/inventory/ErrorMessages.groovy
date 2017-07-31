@@ -45,4 +45,8 @@ class ErrorMessages {
     static Error otherSourceType() {
         Error.badRequest(Error.prop.getProperty('inventory.otherSourceType'))
     }
+
+    static String getInventoryError() {
+        Error.prop.getProperty('inventory.getInventoryError')
+    }
 }
