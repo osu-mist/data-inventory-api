@@ -4,48 +4,45 @@ import edu.oregonstate.mist.api.Error
 
 class ErrorMessages {
     static Error invalidUUID() {
-        Error.badRequest("ID is not a valid UUID. " +
-                "Event ID must follow UUID structure detailed here: " +
-                "https://tools.ietf.org/html/rfc4122.html")
+        Error.badRequest(Error.prop.getProperty('inventory.invalidUUID'))
     }
 
     static Error idExists() {
-        Error.badRequest("Event ID already exists.")
+        Error.badRequest(Error.prop.getProperty('inventory.idExists'))
     }
 
     static Error castError() {
-        Error.badRequest("Inventory object contains invalid fields.")
+        Error.badRequest(Error.prop.getProperty('inventory.castError'))
     }
 
     static Error badType(String value, String allowedTypes) {
         Error.badRequest(
-                "${value} is not a valid inventory type. Allowed types are: ${allowedTypes}")
+                "${value} ${Error.prop.getProperty('inventory.badType')} ${allowedTypes}")
     }
 
     static Error noType(String allowedTypes) {
         Error.badRequest(
-                "attributes.type is a required field. Allowed values are: ${allowedTypes}")
+                "${Error.prop.getProperty('inventory.noType')} ${allowedTypes}")
     }
 
     static Error otherType() {
-        Error.badRequest("If type is Other, the field otherType cannot be null.")
+        Error.badRequest(Error.prop.getProperty('inventory.otherType'))
     }
 
     static Error badSourceType(String value, String allowedSourceTypes) {
         Error.badRequest(
-                "${value} is not a valid sourceType. " +
-                "Allowed source types are: ${allowedSourceTypes}"
+                "${value} ${Error.prop.getProperty('inventory.badSourceType')}" +
+                        " ${allowedSourceTypes}"
         )
     }
 
     static Error noSourceType(String allowedSourceTypes) {
         Error.badRequest(
-                "Provided data must have value for sourceType. " +
-                "Allowed values are: ${allowedSourceTypes}"
+                "${Error.prop.getProperty('inventory.noSourceType')} ${allowedSourceTypes}"
         )
     }
 
     static Error otherSourceType() {
-        Error.badRequest("If sourceType is Other, the field otherSourceType cannot be null.")
+        Error.badRequest(Error.prop.getProperty('inventory.otherSourceType'))
     }
 }

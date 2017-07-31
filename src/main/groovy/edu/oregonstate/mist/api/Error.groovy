@@ -13,7 +13,7 @@ class Error {
     String details
 
     @JsonIgnore
-    private static Properties prop = new Properties()
+    static Properties prop = new Properties()
 
     /**
      * Static initializer to load error text
