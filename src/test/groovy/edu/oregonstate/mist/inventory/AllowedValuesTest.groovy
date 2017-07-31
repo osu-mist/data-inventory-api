@@ -9,12 +9,8 @@ class AllowedValuesTest {
     @Test
     public void testPrettyString() {
         String prettyString = testValues.pretty()
-
         List<String> parsedPrettyString = prettyString.tokenize(',')
-        println prettyString
-        parsedPrettyString.each {
-            println(it)
-        }
+
         testValues.list.each {
             if (it == testValues.list[-1]) {
                 assert "or " + it == parsedPrettyString[-1].trim()
