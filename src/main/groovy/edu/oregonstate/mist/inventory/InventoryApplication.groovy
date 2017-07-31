@@ -32,7 +32,7 @@ class InventoryApplication extends Application<InventoryConfiguration> {
         URI inventorySelfLink = configuration.getSelfLink(InventoryResource.class)
 
         InventoryDAOWrapper inventoryDAOWrapper = new InventoryDAOWrapper(
-                inventoryDAO, inventorySelfLink)
+                inventoryDAO: inventoryDAO, selfLinkBase: inventorySelfLink)
 
         environment.jersey().register(new InventoryResource(inventoryDAOWrapper))
 

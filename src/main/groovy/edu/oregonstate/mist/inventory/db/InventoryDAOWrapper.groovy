@@ -17,11 +17,6 @@ class InventoryDAOWrapper {
     private final String QUERY_DB_TYPE = "Query"
     private final String PROVIDED_DATA_DB_TYPE = "Provided Data"
 
-    InventoryDAOWrapper(InventoryDAO inventoryDao, URI selfLinkBase) {
-        this.inventoryDAO = inventoryDao
-        this.selfLinkBase = selfLinkBase
-    }
-
     /**
      * Get a single inventory object by ID.
      * @param inventoryID
