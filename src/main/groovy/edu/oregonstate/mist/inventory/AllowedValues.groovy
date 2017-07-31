@@ -9,18 +9,6 @@ class AllowedValues {
      * @return
      */
     public String pretty() {
-        String prettyString = ""
-
-        list.each {
-            if (it == list.last()) {
-                prettyString += " or "
-            } else if (it != list.first()) {
-                prettyString += ", "
-            }
-
-            prettyString += it
-        }
-
-        prettyString
+        list[0..-2].join(", ") + ", or " + list[-1]
     }
 }
