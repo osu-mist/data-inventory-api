@@ -29,8 +29,7 @@ class InventoryApplication extends Application<InventoryConfiguration> {
         DBIFactory factory = new DBIFactory()
         DBI jdbi = factory.build(environment, configuration.getDataSourceFactory(), "jdbi")
         InventoryDAO inventoryDAO = jdbi.onDemand(InventoryDAO.class)
-        URI inventorySelfLink = UriBuilder.fromUri(
-                configuration.api.endpointUri).path(InventoryResource.class).build()
+        URI inventorySelfLink = configuration.getSelfLink(InventoryResource.class)
 
         InventoryDAOWrapper inventoryDAOWrapper = new InventoryDAOWrapper(
                 inventoryDAO, inventorySelfLink)
