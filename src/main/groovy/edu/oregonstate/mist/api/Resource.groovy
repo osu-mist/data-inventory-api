@@ -27,6 +27,12 @@ abstract class Resource {
      */
     public static Integer MAX_PAGE_SIZE = 10000
 
+    /**
+     * Used to check if client-generated id is a valid UUID
+     */
+    public final String uuidRegEx =
+            "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[34][0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}"
+
     @Context
     UriInfo uriInfo
 

@@ -41,10 +41,6 @@ class InventoryResource extends Resource {
 
     private InventoryDAOWrapper inventoryDAOWrapper
 
-    // used to check if client-generated id is a valid UUID
-    private final String uuidRegEx =
-            "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[34][0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}"
-
     AllowedValues allowedTypes = new AllowedValues(list: ['API', 'Talend', 'Other'])
     AllowedValues allowedSourceTypes = new AllowedValues(list: ['API', 'Database', 'Other'])
 
