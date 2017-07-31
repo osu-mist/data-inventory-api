@@ -45,8 +45,8 @@ class InventoryResource extends Resource {
     private final String uuidRegEx =
             "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[34][0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}"
 
-    AllowedValues allowedTypes = new AllowedValues(['API', 'Talend', 'Other'])
-    AllowedValues allowedSourceTypes = new AllowedValues(['API', 'Database', 'Other'])
+    AllowedValues allowedTypes = new AllowedValues(list: ['API', 'Talend', 'Other'])
+    AllowedValues allowedSourceTypes = new AllowedValues(list: ['API', 'Database', 'Other'])
 
     InventoryResource(InventoryDAOWrapper inventoryDAOWrapper) {
         this.inventoryDAOWrapper = inventoryDAOWrapper

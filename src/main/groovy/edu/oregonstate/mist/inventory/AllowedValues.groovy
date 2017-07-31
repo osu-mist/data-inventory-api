@@ -4,10 +4,6 @@ class AllowedValues {
 
     List<String> list
 
-    AllowedValues(List<String> allowedTypes) {
-        this.list = allowedTypes
-    }
-
     /**
      * Create english sentence from list of strings.
      * @return
