@@ -62,7 +62,9 @@ public interface InventoryDAO extends Closeable {
     /**
      * Get fields for query params or provided data fields
      * @param type
-     * @param parentID
+     * @param parentID - the parent ID for the field.
+     * The parent ID for an apiQueryParam is also the inventoryID
+     * @param inventoryID - the parent inventory object for the field
      * @return List of fields object
      */
     @SqlQuery("""
