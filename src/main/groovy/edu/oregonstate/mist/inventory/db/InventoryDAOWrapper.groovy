@@ -25,13 +25,12 @@ class InventoryDAOWrapper {
      */
     public ResourceObject getInventoryById(String inventoryID) {
         Inventory inventory = inventoryDAO.getInventoryByID(inventoryID)
-        ResourceObject completeInventory
 
         if (inventory) {
-            completeInventory = inventoryBuilder(inventory)
+            inventoryBuilder(inventory)
+        } else {
+            null
         }
-
-        completeInventory
     }
 
     /**
