@@ -39,14 +39,7 @@ class InventoryDAOWrapper {
      * @return
      */
     public List<ResourceObject> getAllInventories() {
-        List<Inventory> baseInventories = inventoryDAO.getInventories()
-        List<ResourceObject> completeInventories = []
-
-        baseInventories.each {
-            completeInventories += inventoryBuilder(it)
-        }
-
-        completeInventories
+        inventoryDAO.getInventories().collect { inventoryBuilder(it) }
     }
 
     /**
