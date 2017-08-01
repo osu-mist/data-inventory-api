@@ -1,7 +1,6 @@
 package edu.oregonstate.mist.inventory.db
 
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
-import edu.oregonstate.mist.api.jsonapi.ResultObject
 import edu.oregonstate.mist.inventory.core.ConsumingEntity
 import edu.oregonstate.mist.inventory.core.DataSource
 import edu.oregonstate.mist.inventory.core.Field
