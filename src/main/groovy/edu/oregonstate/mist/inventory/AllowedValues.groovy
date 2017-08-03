@@ -9,6 +9,12 @@ class AllowedValues {
      * @return
      */
     public String pretty() {
-        list[0..-2].join(", ") + ", or " + list[-1]
+        if (list.size() == 0) {
+            null
+        } else if (list.size() > 2) {
+            list[0..-2].join(", ") + ", or " + list[-1]
+        } else {
+            list[0..-1].join(" or ")
+        }
     }
 }
