@@ -9,13 +9,11 @@ class ErrorMessages extends Error {
     }
 
     static Error badType(String value, String allowedTypes) {
-        badRequest(
-                "${value} ${getFromProperties('inventory.badType')} ${allowedTypes}")
+        badRequest("${value} ${getFromProperties('inventory.badType')} ${allowedTypes}")
     }
 
     static Error noType(String allowedTypes) {
-        badRequest(
-                "${getFromProperties('inventory.noType')} ${allowedTypes}")
+        badRequest("${getFromProperties('inventory.noType')} ${allowedTypes}")
     }
 
     static Error otherType() {
@@ -23,8 +21,7 @@ class ErrorMessages extends Error {
     }
 
     static Error badSourceType(String value, String allowedSourceTypes) {
-        badRequest(
-                "${value} ${getFromProperties('inventory.badSourceType')}" +
+        badRequest("${value} ${getFromProperties('inventory.badSourceType')}" +
                         " ${allowedSourceTypes}"
         )
     }
