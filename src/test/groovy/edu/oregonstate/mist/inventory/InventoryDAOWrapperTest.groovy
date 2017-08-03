@@ -8,6 +8,7 @@ import edu.oregonstate.mist.inventory.core.Inventory
 import edu.oregonstate.mist.inventory.db.InventoryDAO
 import edu.oregonstate.mist.inventory.db.InventoryDAOWrapper
 import groovy.mock.interceptor.MockFor
+import groovy.mock.interceptor.StubFor
 import org.junit.Test
 
 import javax.ws.rs.core.UriBuilder
@@ -30,7 +31,7 @@ class InventoryDAOWrapperTest {
 
     @Test
     public void testGetInventoryByID() {
-        def mockDAO = new MockFor(InventoryDAO)
+        def stubDAO = new StubFor(InventoryDAO)
 
         Inventory testInventory = new Inventory(
                 id: "123456foo",
@@ -38,7 +39,7 @@ class InventoryDAOWrapperTest {
                 description: "Just some test data",
                 type: "API"
         )
-        mockDAO.demand.getInventoryByID() { testInventory }
+        stubDAO.demand.getInventoryByID() { testInventory }
 
         List<Field> fields = []
         fields.add(new Field(
@@ -46,7 +47,7 @@ class InventoryDAOWrapperTest {
                 field: "Foo",
                 description: "Eggplant"
         ))
-        mockDAO.demand.getFields() { fields }
+        stubDAO.demand.getFields(2..2) {type, parentID, inventoryID -> fields}
 
         List<ConsumingEntity> consumingEntities = []
         consumingEntities.add(new ConsumingEntity(
@@ -60,7 +61,7 @@ class InventoryDAOWrapperTest {
                 internal: false,
                 dataManagementRequest: "www.linktofile.com"
         ))
-        mockDAO.demand.getConsumingEntities() { consumingEntities }
+        stubDAO.demand.getConsumingEntities() { consumingEntities }
 
         List<DataSource> dataSources = []
         dataSources.add(new DataSource(
@@ -70,9 +71,9 @@ class InventoryDAOWrapperTest {
                 sourceType: "DB",
                 internal: true
         ))
-        mockDAO.demand.getProvidedData() { dataSources }
+        stubDAO.demand.getProvidedData() { dataSources }
 
-        InventoryDAO inventoryDAO = mockDAO.proxyInstance()
+        InventoryDAO inventoryDAO = stubDAO.proxyInstance()
         def inventoryDAOWrapper = new InventoryDAOWrapper(
                 inventoryDAO: inventoryDAO,
                 selfLinkBase: selfLinkBase
@@ -95,6 +96,9 @@ class InventoryDAOWrapperTest {
                 ]
         )
 
-        assert daoResourceObject == expectedResult
+        assert expectedResult.id == daoResourceObject.id
+        assert expectedResult.type == daoResourceObject.type
+        assert expectedResult.attributes == daoResourceObject.attributes
+        assert expectedResult.links == daoResourceObject.links
     }
 }
