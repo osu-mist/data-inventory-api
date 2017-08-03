@@ -13,7 +13,7 @@ class Error {
     String details
 
     @JsonIgnore
-    static Properties prop = new Properties()
+    private static Properties prop = new Properties()
 
     /**
      * Static initializer to load error text
@@ -42,6 +42,14 @@ class Error {
             code: parseInt(getFromProperties('badRequest.code')),
             details: getFromProperties('badRequest.details')
         )
+    }
+
+    static Error invalidUUID() {
+        badRequest(getFromProperties('badRequest.invalidUUID'))
+    }
+
+    static Error idExists() {
+        badRequest(getFromProperties('badRequest.idExists'))
     }
 
     /**

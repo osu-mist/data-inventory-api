@@ -3,13 +3,6 @@ package edu.oregonstate.mist.inventory
 import edu.oregonstate.mist.api.Error
 
 class ErrorMessages extends Error {
-    static Error invalidUUID() {
-        badRequest(getFromProperties('inventory.invalidUUID'))
-    }
-
-    static Error idExists() {
-        badRequest(getFromProperties('inventory.idExists'))
-    }
 
     static Error castError() {
         badRequest(getFromProperties('inventory.castError'))
