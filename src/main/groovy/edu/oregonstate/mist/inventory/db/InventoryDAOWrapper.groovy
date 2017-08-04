@@ -84,6 +84,9 @@ class InventoryDAOWrapper {
 
     @Transaction
     public void createInventory(Inventory inventory) {
+        inventory.name = inventory.name.trim()
+        inventory.description = inventory.description.trim()
+
         inventoryDAO.createInventory(inventory)
 
         inventory.apiQueryParams.each { queryParam ->
