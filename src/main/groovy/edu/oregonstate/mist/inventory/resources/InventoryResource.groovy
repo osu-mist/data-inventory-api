@@ -192,14 +192,28 @@ class InventoryResource extends Resource {
                     inventory.type.toString(), allowedTypes.pretty()))
         }
 
+        def addNullError = { String fieldName ->
+            errors.add(ErrorMessages.notNull(fieldName))
+        }
+
         // If type is Talend, there shouldn't be any apiQueryParams
         if (inventory.type != "API" && (inventory.apiQueryParams.size() != 0)) {
             errors.add(ErrorMessages.nonAPIQueryParams())
+        } else if (nullFieldID(inventory.apiQueryParams)) {
+            addNullError("apiQueryParams.fieldID")
         }
 
         // If Type is Other, otherType may not be null.
         if (inventory.type == "Other" && !inventory.otherType) {
             errors.add(ErrorMessages.otherType())
+        }
+
+        if (consumingEntitiesNullID(inventory.consumingEntities)) {
+            addNullError("consumingEntities.entityID")
+        }
+
+        if (dataSourceNullID(inventory.providedData)) {
+            addNullError("providedData.sourceID")
         }
 
         inventory.providedData.each {
@@ -213,11 +227,61 @@ class InventoryResource extends Resource {
             if (it.sourceType == "Other" && !it.otherSourceType) {
                 errors.add(ErrorMessages.otherSourceType())
             }
+
+            if (nullFieldID(it.fields)) {
+                addNullError("providedData.fields.fieldID")
+            }
+
+            if (it.sourceType != "API" && it.apiUrl) {
+                errors.add(ErrorMessages.nonAPIWithAPIUrl())
+            }
         }
 
         errors
     }
 
+    /**
+     * Returns true if a Field in a List<Field> contains a null fieldID
+     * @param fields
+     * @return
+     */
+    private Boolean nullFieldID(List<Field> fields) {
+        fields.find {
+            if (!it.fieldID) {
+                return true
+            }
+            false
+        }
+    }
+
+    /**
+     * Returns true if a ConsumingEntity in a List<ConsumingEntity>
+     *     contains a null entityID
+     * @param fields
+     * @return
+     */
+    private Boolean consumingEntitiesNullID(List<ConsumingEntity> fields) {
+        fields.find {
+            if (!it.entityID) {
+                return true
+            }
+            false
+        }
+    }
+
+    /**
+     * Returns true if a DataSource in a List<DataSource> contains a null sourceID
+     * @param fields
+     * @return
+     */
+    private Boolean dataSourceNullID(List<DataSource> fields) {
+        fields.find {
+            if (!it.sourceID) {
+                return true
+            }
+            false
+        }
+    }
     /**
      * Test casting inventory object and various subclasses.
      * @param resultObject

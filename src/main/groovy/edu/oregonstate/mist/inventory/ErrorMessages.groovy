@@ -24,6 +24,9 @@ class ErrorMessages extends Error {
         badRequest(getFromProperties('inventory.nonAPIQueryParams'))
     }
 
+    static Error nonAPIWithAPIUrl() {
+        badRequest(getFromProperties('inventory.nonAPIWithAPIUrl'))
+    }
     static Error otherType() {
         badRequest(getFromProperties('inventory.otherType'))
     }
@@ -42,6 +45,10 @@ class ErrorMessages extends Error {
 
     static Error otherSourceType() {
         badRequest(getFromProperties('inventory.otherSourceType'))
+    }
+
+    static Error notNull(String field) {
+        badRequest("${field} " + getFromProperties('inventory.notNull'))
     }
 
     static String getInventoryError() {
