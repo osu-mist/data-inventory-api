@@ -154,22 +154,27 @@ class InventoryResource extends Resource {
     public List<Error> getErrors(ResultObject resultObject) {
         List<Error> errors = []
 
-        // Invalid UUID
-        if (resultObject.data["id"]) {
-            String id = resultObject.data["id"]
-
-            if (!id.matches(uuidRegEx)) {
-                errors.add(ErrorMessages.invalidUUID())
-            }
-
-            if (inventoryDAOWrapper.getInventoryById(id)) {
-                errors.add(ErrorMessages.idExists())
-            }
-        }
-
-        // Try casting resultObject as Inventory object.
         try {
+            // Invalid UUID
+            if (resultObject.data["id"]) {
+                String id = resultObject.data["id"]
+
+                if (!id.matches(uuidRegEx)) {
+                    errors.add(ErrorMessages.invalidUUID())
+                }
+
+                if (inventoryDAOWrapper.getInventoryById(id)) {
+                    errors.add(ErrorMessages.idExists())
+                }
+            }
+
+            // Try casting resultObject as Inventory object.
             testConversion(resultObject)
+        } catch (NullPointerException e) {
+            errors.add(ErrorMessages.emptyError())
+
+            // If we can't get a data object from the resultObject, return the errors.
+            return errors
         } catch (GroovyCastException e) {
             errors.add(ErrorMessages.castError())
 

@@ -8,6 +8,10 @@ class ErrorMessages extends Error {
         badRequest(getFromProperties('inventory.castError'))
     }
 
+    static Error emptyError() {
+        badRequest(getFromProperties('inventory.empty'))
+    }
+
     static Error badType(String value, String allowedTypes) {
         badRequest("${value} ${getFromProperties('inventory.badType')} ${allowedTypes}")
     }
