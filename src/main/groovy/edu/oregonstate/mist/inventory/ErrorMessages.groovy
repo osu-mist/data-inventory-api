@@ -20,6 +20,10 @@ class ErrorMessages extends Error {
         badRequest("${getFromProperties('inventory.noType')} ${allowedTypes}")
     }
 
+    static Error nonAPIQueryParams() {
+        badRequest(getFromProperties('inventory.nonAPIQueryParams'))
+    }
+
     static Error otherType() {
         badRequest(getFromProperties('inventory.otherType'))
     }

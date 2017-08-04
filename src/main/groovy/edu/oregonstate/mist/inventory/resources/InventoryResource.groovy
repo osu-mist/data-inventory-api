@@ -192,6 +192,11 @@ class InventoryResource extends Resource {
                     inventory.type.toString(), allowedTypes.pretty()))
         }
 
+        // If type is Talend, there shouldn't be any apiQueryParams
+        if (inventory.type != "API" && (inventory.apiQueryParams.size() != 0)) {
+            errors.add(ErrorMessages.nonAPIQueryParams())
+        }
+
         // If Type is Other, otherType may not be null.
         if (inventory.type == "Other" && !inventory.otherType) {
             errors.add(ErrorMessages.otherType())
