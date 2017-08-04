@@ -103,7 +103,7 @@ class InventoryDAOWrapper {
             dataSource.fields.each { field ->
                 inventoryDAO.createField(
                         (Field) field,
-                        dataSource.sourceID,
+                        dataSource.sourceID.toString(),
                         PROVIDED_DATA_DB_TYPE,
                         inventory.id
                 )
