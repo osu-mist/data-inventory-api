@@ -30,8 +30,8 @@ public interface InventoryDAO extends Closeable {
             DESCRIPTION,
             TYPE,
             OTHER_TYPE,
-            TO_CHAR(CREATED_AT, 'yyyy-mm-dd hh24:mi:ss') AS CREATED_AT,
-            TO_CHAR(UPDATED_AT, 'yyyy-mm-dd hh24:mi:ss') AS UPDATED_AT
+            TO_CHAR(CREATED_AT AT TIME ZONE 'UTC', 'yyyy-mm-dd hh24:mi:ss') AS CREATED_AT,
+            TO_CHAR(UPDATED_AT AT TIME ZONE 'UTC', 'yyyy-mm-dd hh24:mi:ss') AS UPDATED_AT
         FROM INVENTORY_INVENTORY
         WHERE DELETED_AT IS NULL
         """)
@@ -50,8 +50,8 @@ public interface InventoryDAO extends Closeable {
             DESCRIPTION,
             TYPE,
             OTHER_TYPE,
-            TO_CHAR(CREATED_AT, 'yyyy-mm-dd hh24:mi:ss') AS CREATED_AT,
-            TO_CHAR(UPDATED_AT, 'yyyy-mm-dd hh24:mi:ss') AS UPDATED_AT
+            TO_CHAR(CREATED_AT AT TIME ZONE 'UTC', 'yyyy-mm-dd hh24:mi:ss') AS CREATED_AT,
+            TO_CHAR(UPDATED_AT AT TIME ZONE 'UTC', 'yyyy-mm-dd hh24:mi:ss') AS UPDATED_AT
         FROM INVENTORY_INVENTORY
         WHERE DELETED_AT IS NULL
         AND INVENTORY_ID = :inventoryID

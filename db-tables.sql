@@ -5,9 +5,9 @@ CREATE TABLE apismgr.INVENTORY_INVENTORY
     DESCRIPTION            CLOB,
     TYPE                   VARCHAR2(256),
     OTHER_TYPE             CLOB,
-    CREATED_AT             DATE NOT NULL,
-    UPDATED_AT             DATE,
-    DELETED_AT             DATE,
+    CREATED_AT             TIMESTAMP NOT NULL,
+    UPDATED_AT             TIMESTAMP,
+    DELETED_AT             TIMESTAMP,
     CONSTRAINT PK_INVENTORY_INVENTORY PRIMARY KEY
     (
         INVENTORY_ID
@@ -37,9 +37,9 @@ CREATE TABLE apismgr.INVENTORY_FIELDS
     FIELD                  VARCHAR2(256),
     DESCRIPTION            CLOB,
     TYPE                   VARCHAR2(256) NOT NULL,
-    CREATED_AT             DATE NOT NULL,
-    UPDATED_AT             DATE,
-    DELETED_AT             DATE,
+    CREATED_AT             TIMESTAMP NOT NULL,
+    UPDATED_AT             TIMESTAMP,
+    DELETED_AT             TIMESTAMP,
     CONSTRAINT PK_INVENTORY_FIELDS PRIMARY KEY
         (
             FIELD_ID 
@@ -76,9 +76,9 @@ CREATE TABLE apismgr.INVENTORY_CONSUMING_ENTITIES
     INTERNAL               VARCHAR2(1) NOT NULL,
     MOU                    VARCHAR2(1024),
     DMR                    VARCHAR2(1024),
-    CREATED_AT             DATE NOT NULL,
-    UPDATED_AT             DATE,
-    DELETED_AT             DATE,
+    CREATED_AT             TIMESTAMP NOT NULL,
+    UPDATED_AT             TIMESTAMP,
+    DELETED_AT             TIMESTAMP,
     CONSTRAINT PK_INVENTORY_CONSUMERS PRIMARY KEY
         (
             ENTITY_ID
@@ -117,9 +117,9 @@ CREATE TABLE apismgr.INVENTORY_PROVIDED_DATA
     OTHER_SOURCE_TYPE      CLOB,
     API_URL                VARCHAR2(1024),
     INTERNAL               VARCHAR2(1),
-    CREATED_AT             DATE NOT NULL,
-    UPDATED_AT             DATE,
-    DELETED_AT             DATE,
+    CREATED_AT             TIMESTAMP NOT NULL,
+    UPDATED_AT             TIMESTAMP,
+    DELETED_AT             TIMESTAMP,
     CONSTRAINT PK_INVENTORY_PROVIDED_DATA PRIMARY KEY
         (
             DATA_ID
