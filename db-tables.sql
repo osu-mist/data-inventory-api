@@ -5,9 +5,9 @@ CREATE TABLE apismgr.INVENTORY_INVENTORY
     DESCRIPTION            CLOB,
     TYPE                   VARCHAR2(256),
     OTHER_TYPE             CLOB,
-    CREATED_AT             DATE NOT NULL,
-    UPDATED_AT             DATE,
-    DELETED_AT             DATE,
+    CREATED_AT             TIMESTAMP NOT NULL,
+    UPDATED_AT             TIMESTAMP,
+    DELETED_AT             TIMESTAMP,
     CONSTRAINT PK_INVENTORY_INVENTORY PRIMARY KEY
     (
         INVENTORY_ID
@@ -37,9 +37,9 @@ CREATE TABLE apismgr.INVENTORY_FIELDS
     FIELD                  VARCHAR2(256),
     DESCRIPTION            CLOB,
     TYPE                   VARCHAR2(256) NOT NULL,
-    CREATED_AT             DATE NOT NULL,
-    UPDATED_AT             DATE,
-    DELETED_AT             DATE,
+    CREATED_AT             TIMESTAMP NOT NULL,
+    UPDATED_AT             TIMESTAMP,
+    DELETED_AT             TIMESTAMP,
     CONSTRAINT PK_INVENTORY_FIELDS PRIMARY KEY
         (
             FIELD_ID 
@@ -75,9 +75,10 @@ CREATE TABLE apismgr.INVENTORY_CONSUMING_ENTITIES
     ENTITY_URL             VARCHAR2(1024),
     INTERNAL               VARCHAR2(1) NOT NULL,
     MOU                    VARCHAR2(1024),
-    CREATED_AT             DATE NOT NULL,
-    UPDATED_AT             DATE,
-    DELETED_AT             DATE,
+    DMR                    VARCHAR2(1024),
+    CREATED_AT             TIMESTAMP NOT NULL,
+    UPDATED_AT             TIMESTAMP,
+    DELETED_AT             TIMESTAMP,
     CONSTRAINT PK_INVENTORY_CONSUMERS PRIMARY KEY
         (
             ENTITY_ID
@@ -100,6 +101,7 @@ COMMENT ON COLUMN apismgr.INVENTORY_CONSUMING_ENTITIES.ENTITY_PHONE IS 'Phone nu
 COMMENT ON COLUMN apismgr.INVENTORY_CONSUMING_ENTITIES.ENTITY_URL IS 'Website of entity.';
 COMMENT ON COLUMN apismgr.INVENTORY_CONSUMING_ENTITIES.INTERNAL IS 'If false, the entity is a third-party vendor governed outside the scope of the university.';
 COMMENT ON COLUMN apismgr.INVENTORY_CONSUMING_ENTITIES.MOU IS 'URL of memorandum of understanding document.';
+COMMENT ON COLUMN apismgr.INVENTORY_CONSUMING_ENTITIES.DMR IS 'URL of data management request document.';
 COMMENT ON COLUMN apismgr.INVENTORY_CONSUMING_ENTITIES.CREATED_AT IS 'Stores SYSDATE when entity record was created.';
 COMMENT ON COLUMN apismgr.INVENTORY_CONSUMING_ENTITIES.UPDATED_AT IS 'Stores SYSDATE when entity record was updated.';
 COMMENT ON COLUMN apismgr.INVENTORY_CONSUMING_ENTITIES.DELETED_AT IS 'Stores SYSDATE when entity record was deleted.';
@@ -115,9 +117,9 @@ CREATE TABLE apismgr.INVENTORY_PROVIDED_DATA
     OTHER_SOURCE_TYPE      CLOB,
     API_URL                VARCHAR2(1024),
     INTERNAL               VARCHAR2(1),
-    CREATED_AT             DATE NOT NULL,
-    UPDATED_AT             DATE,
-    DELETED_AT             DATE,
+    CREATED_AT             TIMESTAMP NOT NULL,
+    UPDATED_AT             TIMESTAMP,
+    DELETED_AT             TIMESTAMP,
     CONSTRAINT PK_INVENTORY_PROVIDED_DATA PRIMARY KEY
         (
             DATA_ID

@@ -39,11 +39,10 @@ class ConsumingEntity {
     String entityUrl
     Boolean internal
     String mou
+    String dataManagementRequest
 }
 
 class DataSource {
-    @JsonIgnore
-    String internalID
     String sourceID
     String source
     String sourceDescription

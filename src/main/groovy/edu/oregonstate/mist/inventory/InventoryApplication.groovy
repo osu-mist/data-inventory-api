@@ -10,6 +10,8 @@ import io.dropwizard.jdbi.DBIFactory
 import io.dropwizard.setup.Environment
 import org.skife.jdbi.v2.DBI
 
+import javax.ws.rs.core.UriBuilder
+
 /**
  * Main application class.
  */
@@ -27,9 +29,12 @@ class InventoryApplication extends Application<InventoryConfiguration> {
         DBIFactory factory = new DBIFactory()
         DBI jdbi = factory.build(environment, configuration.getDataSourceFactory(), "jdbi")
         InventoryDAO inventoryDAO = jdbi.onDemand(InventoryDAO.class)
-        InventoryDAOWrapper inventoryDAOWrapper = new InventoryDAOWrapper(inventoryDAO)
-        environment.jersey().register(new InventoryResource(inventoryDAOWrapper,
-                configuration.api.endpointUri))
+        URI inventorySelfLink = configuration.getSelfLink(InventoryResource.class)
+
+        InventoryDAOWrapper inventoryDAOWrapper = new InventoryDAOWrapper(
+                inventoryDAO: inventoryDAO, selfLinkBase: inventorySelfLink)
+
+        environment.jersey().register(new InventoryResource(inventoryDAOWrapper))
 
         InventoryHealthCheck healthCheck = new InventoryHealthCheck(inventoryDAO)
         environment.healthChecks().register("inventoryHealthCheck", healthCheck)

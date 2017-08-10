@@ -38,10 +38,18 @@ class Error {
         new Error(
             status: 400,
             developerMessage: message,
-            userMessage: prop.getProperty('badRequest.userMessage'),
-            code: parseInt(prop.getProperty('badRequest.code')),
-            details: prop.getProperty('badRequest.details')
+            userMessage: getFromProperties('badRequest.userMessage'),
+            code: parseInt(getFromProperties('badRequest.code')),
+            details: getFromProperties('badRequest.details')
         )
+    }
+
+    static Error invalidUUID() {
+        badRequest(getFromProperties('badRequest.invalidUUID'))
+    }
+
+    static Error idExists() {
+        badRequest(getFromProperties('badRequest.idExists'))
     }
 
     /**
@@ -52,10 +60,10 @@ class Error {
     static Error notFound() {
         new Error(
             status: 404,
-            developerMessage: prop.getProperty('notFound.developerMessage'),
-            userMessage: prop.getProperty('notFound.userMessage'),
-            code: parseInt(prop.getProperty('notFound.code')),
-            details: prop.getProperty('notFound.details')
+            developerMessage: getFromProperties('notFound.developerMessage'),
+            userMessage: getFromProperties('notFound.userMessage'),
+            code: parseInt(getFromProperties('notFound.code')),
+            details: getFromProperties('notFound.details')
         )
     }
 
@@ -67,10 +75,10 @@ class Error {
     static Error conflict() {
         new Error(
             status: 409,
-            developerMessage: prop.getProperty('conflict.developerMessage'),
-            userMessage: prop.getProperty('conflict.userMessage'),
-            code: parseInt(prop.getProperty('conflict.code')),
-            details: prop.getProperty('conflict.details')
+            developerMessage: getFromProperties('conflict.developerMessage'),
+            userMessage: getFromProperties('conflict.userMessage'),
+            code: parseInt(getFromProperties('conflict.code')),
+            details: getFromProperties('conflict.details')
         )
     }
 
@@ -84,12 +92,16 @@ class Error {
         new Error(
             status: 500,
             developerMessage: message,
-            userMessage: prop.getProperty('internalServerError.userMessage'),
-            code: parseInt(prop.getProperty('internalServerError.code')),
-            details: prop.getProperty('internalServerError.details')
+            userMessage: getFromProperties('internalServerError.userMessage'),
+            code: parseInt(getFromProperties('internalServerError.code')),
+            details: getFromProperties('internalServerError.details')
         )
     }
 
+    static String getFromProperties(String property) {
+        prop.getProperty(property)
+    }
+    
     private static Integer parseInt(String s) {
         if (s != null) {
             Integer.parseInt(s)
