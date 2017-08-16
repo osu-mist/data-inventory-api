@@ -213,6 +213,34 @@ public interface InventoryDAO extends Closeable {
         """)
     abstract void createProvidedData(@BindBean DataSource dataSource,
                                      @Bind("inventoryID") String inventoryID)
+
+    @SqlUpdate("""
+        UPDATE INVENTORY_INVENTORY
+        SET NAME = :name,
+            DESCRIPTION = :description,
+            TYPE = :type,
+            OTHER_TYPE = :otherType,
+            UPDATED_AT = SYSDATE
+        WHERE INVENTORY_ID = :inventoryID
+        """)
+    abstract void updateInventory(@BindBean Inventory inventory,
+                                  @Bind("inventoryID") String inventoryID)
+
+    @SqlUpdate("""
+        UPDATE INVENTORY_FIELDS
+        SET FIELD = :field,
+            DESCRIPTION = :description,
+            UPDATED_AT = SYSDATE
+        WHERE CLIENT_FIELD_ID = :fieldID
+            AND PARENT_ID = :parentID
+            AND TYPE = :type
+            AND INVENTORY_ID = :inventoryID
+        """)
+    abstract void updateField(@BindBean Field field,
+                              @Bind("parentID") String parentID,
+                              @Bind("type") String type,
+                              @Bind("inventoryID") String inventoryID)
+
     /**
      * Soft delete inventory object
      * @param inventoryID
@@ -233,8 +261,29 @@ public interface InventoryDAO extends Closeable {
         UPDATE INVENTORY_FIELDS
         SET DELETED_AT = SYSDATE
         WHERE INVENTORY_ID = :inventoryID
+            AND DELETED_AT IS NOT NULL
     """)
     abstract void deleteFields(@Bind("inventoryID") String inventoryID)
+
+    /**
+     * Soft delete single field
+     * @param clientFieldID
+     * @param parentID
+     * @param type
+     * @param inventoryID
+     */
+    @SqlUpdate("""
+        UPDATE INVENTORY_FIELDS
+        SET DELETED_AT = SYSDATE
+        WHERE INVENTORY_ID = :inventoryID
+            AND CLIENT_FIELD_ID = :clientFieldID
+            AND PARENT_ID = :parentID
+            AND TYPE = :type
+    """)
+    abstract void deleteField(@Bind("clientFieldID") String clientFieldID,
+                              @Bind("parentID") String parentID,
+                              @Bind("type") String type,
+                              @Bind("inventoryID") String inventoryID)
 
     /**
      * Soft delete consuming entity objects

@@ -52,6 +52,14 @@ class Error {
         badRequest(getFromProperties('badRequest.idExists'))
     }
 
+    static Error idNotFound() {
+        badRequest(getFromProperties('badRequest.idNotFound'))
+    }
+
+    static Error idMismatch() {
+        badRequest(getFromProperties('badRequest.idMismatch'))
+    }
+
     /**
      * Returns a new Error for a HTTP 404 ("not found") response.
      *

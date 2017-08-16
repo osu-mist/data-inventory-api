@@ -1,6 +1,7 @@
 package edu.oregonstate.mist.inventory.db
 
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
+import edu.oregonstate.mist.api.jsonapi.ResultObject
 import edu.oregonstate.mist.inventory.core.ConsumingEntity
 import edu.oregonstate.mist.inventory.core.DataSource
 import edu.oregonstate.mist.inventory.core.Field
@@ -84,8 +85,7 @@ class InventoryDAOWrapper {
 
     @Transaction
     public void createInventory(Inventory inventory) {
-        inventory.name = inventory.name.trim()
-        inventory.description = inventory.description.trim()
+        inventory.trimNameAndDescription()
 
         inventoryDAO.createInventory(inventory)
 
@@ -108,6 +108,39 @@ class InventoryDAOWrapper {
                         inventory.id
                 )
             }
+        }
+    }
+
+    @Transaction
+    public void updateInventory(Inventory inventory, String inventoryID) {
+        //Update top level inventory attributes
+        inventory.trimNameAndDescription()
+        inventoryDAO.updateInventory(inventory, inventoryID)
+
+        //Update api query parameters
+        List<Field> currentAPIQueryParams = inventoryDAO.getFields(
+                QUERY_DB_TYPE,
+                inventoryID,
+                inventoryID
+        )
+
+        def currentAPIQueryParamIDs = currentAPIQueryParams.collect { it.fieldID }
+
+        inventory.apiQueryParams.each { queryParam ->
+            if (currentAPIQueryParamIDs.contains(queryParam.fieldID)) {
+                inventoryDAO.updateField(
+                        (Field) queryParam, inventoryID, QUERY_DB_TYPE, inventoryID)
+            } else {
+                inventoryDAO.createField(
+                        (Field) queryParam, inventoryID, QUERY_DB_TYPE, inventoryID)
+            }
+        }
+
+        def apiQueryParamIDsToDelete = currentAPIQueryParamIDs -
+                inventory.apiQueryParams.collect { it.fieldID }
+
+        apiQueryParamIDsToDelete.each {
+            inventoryDAO.deleteField(it, inventoryID, QUERY_DB_TYPE, inventoryID)
         }
     }
 

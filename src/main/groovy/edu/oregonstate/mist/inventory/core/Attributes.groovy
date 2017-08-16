@@ -21,6 +21,11 @@ class Inventory {
 
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss'Z'", timezone="UTC")
     ZonedDateTime updated
+
+    public void trimNameAndDescription() {
+        name = name.trim()
+        description = description.trim()
+    }
 }
 
 class Field {
