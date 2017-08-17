@@ -129,6 +129,10 @@ public interface InventoryDAO extends Closeable {
     @Mapper(DataSourceMapper)
     List<DataSource> getProvidedData(@Bind("inventoryID") String inventoryID)
 
+    /**
+     * Create an inventory object
+     * @param inventory
+     */
     @SqlUpdate("""
         INSERT INTO INVENTORY_INVENTORY (
             INVENTORY_ID, NAME, DESCRIPTION,
@@ -145,6 +149,13 @@ public interface InventoryDAO extends Closeable {
         """)
     abstract void createInventory(@BindBean Inventory inventory)
 
+    /**
+     * Create a field object
+     * @param field
+     * @param parentID
+     * @param type
+     * @param inventoryID
+     */
     @SqlUpdate("""
         INSERT INTO INVENTORY_FIELDS (
             FIELD_ID, CLIENT_FIELD_ID, PARENT_ID,
@@ -166,6 +177,11 @@ public interface InventoryDAO extends Closeable {
                               @Bind("type") String type,
                               @Bind("inventoryID") String inventoryID)
 
+    /**
+     * Create a consuming entity object
+     * @param consumingEntity
+     * @param inventoryID
+     */
     @SqlUpdate("""
         INSERT INTO INVENTORY_CONSUMING_ENTITIES (
             ENTITY_ID, CLIENT_ENTITY_ID, INVENTORY_ID,
@@ -192,6 +208,11 @@ public interface InventoryDAO extends Closeable {
     abstract void createConsumingEntity(@BindBean ConsumingEntity consumingEntity,
                                         @Bind("inventoryID") String inventoryID)
 
+    /**
+     * Create a data source object
+     * @param dataSource
+     * @param inventoryID
+     */
     @SqlUpdate("""
         INSERT INTO INVENTORY_PROVIDED_DATA (
             DATA_ID, CLIENT_DATA_ID, INVENTORY_ID,
@@ -214,6 +235,11 @@ public interface InventoryDAO extends Closeable {
     abstract void createProvidedData(@BindBean DataSource dataSource,
                                      @Bind("inventoryID") String inventoryID)
 
+    /**
+     * Update an inventory object by ID
+     * @param inventory
+     * @param inventoryID
+     */
     @SqlUpdate("""
         UPDATE INVENTORY_INVENTORY
         SET NAME = :name,
@@ -226,6 +252,13 @@ public interface InventoryDAO extends Closeable {
     abstract void updateInventory(@BindBean Inventory inventory,
                                   @Bind("inventoryID") String inventoryID)
 
+    /**
+     * Update a field object
+     * @param field
+     * @param parentID
+     * @param type
+     * @param inventoryID
+     */
     @SqlUpdate("""
         UPDATE INVENTORY_FIELDS
         SET FIELD = :field,
@@ -241,6 +274,11 @@ public interface InventoryDAO extends Closeable {
                               @Bind("type") String type,
                               @Bind("inventoryID") String inventoryID)
 
+    /**
+     * Update a consuming entity object
+     * @param consumingEntity
+     * @param inventoryID
+     */
     @SqlUpdate("""
         UPDATE INVENTORY_CONSUMING_ENTITIES
         SET ENTITY_NAME = :entityName,
@@ -259,6 +297,11 @@ public interface InventoryDAO extends Closeable {
     abstract void updateConsumingEntity(@BindBean ConsumingEntity consumingEntity,
                                         @Bind("inventoryID") String inventoryID)
 
+    /**
+     * Update a data source object
+     * @param dataSource
+     * @param inventoryID
+     */
     @SqlUpdate("""
         UPDATE INVENTORY_PROVIDED_DATA
         SET SOURCE = :source,

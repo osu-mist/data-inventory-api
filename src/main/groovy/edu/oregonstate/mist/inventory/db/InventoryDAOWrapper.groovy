@@ -82,6 +82,10 @@ class InventoryDAOWrapper {
         )
     }
 
+    /**
+     * Create a single inventory object
+     * @param inventory
+     */
     @Transaction
     public void createInventory(Inventory inventory) {
         inventory.trimNameAndDescription()
@@ -110,6 +114,11 @@ class InventoryDAOWrapper {
         }
     }
 
+    /**
+     * Update a single inventory object by ID
+     * @param inventory
+     * @param inventoryID
+     */
     @Transaction
     public void updateInventory(Inventory inventory, String inventoryID) {
         //Update top level inventory attributes
@@ -170,6 +179,13 @@ class InventoryDAOWrapper {
         }
     }
 
+    /**
+     * Create, update, or delete field objects.
+     * @param fields
+     * @param inventoryID
+     * @param parentID
+     * @param type
+     */
     private void createUpdateDeleteFields(
             List<Field> fields, String inventoryID, String parentID, String type) {
         List<Field> currentFields = inventoryDAO.getFields(
