@@ -241,6 +241,39 @@ public interface InventoryDAO extends Closeable {
                               @Bind("type") String type,
                               @Bind("inventoryID") String inventoryID)
 
+    @SqlUpdate("""
+        UPDATE INVENTORY_CONSUMING_ENTITIES
+        SET ENTITY_NAME = :entityName,
+            APPLICATION_NAME = :applicationName,
+            ENTITY_CONTACT_NAME = :entityContactName,
+            ENTITY_EMAIL = :entityEmail,
+            ENTITY_PHONE = :entityPhone,
+            ENTITY_URL = :entityUrl,
+            INTERNAL = :internal,
+            MOU = :mou,
+            DMR = :dataManagementRequest,
+            UPDATED_AT = SYSDATE
+        WHERE CLIENT_ENTITY_ID = :entityID
+            AND INVENTORY_ID = :inventoryID
+        """)
+    abstract void updateConsumingEntity(@BindBean ConsumingEntity consumingEntity,
+                                        @Bind("inventoryID") String inventoryID)
+
+    @SqlUpdate("""
+        UPDATE INVENTORY_PROVIDED_DATA
+        SET SOURCE = :source,
+            SOURCE_DESCRIPTION = :sourceDescription,
+            SOURCE_TYPE = :sourceType,
+            OTHER_SOURCE_TYPE = :otherSourceType,
+            API_URL = :apiUrl,
+            INTERNAL = :internal,
+            UPDATED_AT = SYSDATE
+        WHERE CLIENT_DATA_ID = :sourceID
+            AND INVENTORY_ID = :inventoryID
+        """)
+    abstract void updateProvidedData(@BindBean DataSource dataSource,
+                                     @Bind("inventoryID") String inventoryID)
+
     /**
      * Soft delete inventory object
      * @param inventoryID
@@ -261,29 +294,15 @@ public interface InventoryDAO extends Closeable {
         UPDATE INVENTORY_FIELDS
         SET DELETED_AT = SYSDATE
         WHERE INVENTORY_ID = :inventoryID
-            AND DELETED_AT IS NOT NULL
+            AND (CLIENT_FIELD_ID = :clientFieldID OR :clientFieldID IS NULL)
+            AND (PARENT_ID = :parentID OR :parentID IS NULL)
+            AND (TYPE = :type OR :type IS NULL)
+            AND DELETED_AT IS NULL
     """)
-    abstract void deleteFields(@Bind("inventoryID") String inventoryID)
-
-    /**
-     * Soft delete single field
-     * @param clientFieldID
-     * @param parentID
-     * @param type
-     * @param inventoryID
-     */
-    @SqlUpdate("""
-        UPDATE INVENTORY_FIELDS
-        SET DELETED_AT = SYSDATE
-        WHERE INVENTORY_ID = :inventoryID
-            AND CLIENT_FIELD_ID = :clientFieldID
-            AND PARENT_ID = :parentID
-            AND TYPE = :type
-    """)
-    abstract void deleteField(@Bind("clientFieldID") String clientFieldID,
-                              @Bind("parentID") String parentID,
-                              @Bind("type") String type,
-                              @Bind("inventoryID") String inventoryID)
+    abstract void deleteFields(@Bind("inventoryID") String inventoryID,
+                               @Bind("clientFieldID") String clientFieldID,
+                               @Bind("parentID") String parentID,
+                               @Bind("type") String type)
 
     /**
      * Soft delete consuming entity objects
@@ -293,8 +312,11 @@ public interface InventoryDAO extends Closeable {
         UPDATE INVENTORY_CONSUMING_ENTITIES
         SET DELETED_AT = SYSDATE
         WHERE INVENTORY_ID = :inventoryID
+            AND (CLIENT_ENTITY_ID = :entityID OR :entityID IS NULL)
+            AND DELETED_AT IS NULL
     """)
-    abstract void deleteConsumingEntities(@Bind("inventoryID") String inventoryID)
+    abstract void deleteConsumingEntities(@Bind("inventoryID") String inventoryID,
+                                          @Bind("entityID") String entityID)
 
     /**
      * Soft delete provided data objects
@@ -304,8 +326,11 @@ public interface InventoryDAO extends Closeable {
         UPDATE INVENTORY_PROVIDED_DATA
         SET DELETED_AT = SYSDATE
         WHERE INVENTORY_ID = :inventoryID
+            AND (CLIENT_DATA_ID = :sourceID OR :sourceID IS NULL)
+            AND DELETED_AT IS NULL
     """)
-    abstract void deleteProvidedData(@Bind("inventoryID") String inventoryID)
+    abstract void deleteProvidedData(@Bind("inventoryID") String inventoryID,
+                                     @Bind("sourceID") String sourceID)
 
     @Override
     void close()

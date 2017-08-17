@@ -1,7 +1,6 @@
 package edu.oregonstate.mist.inventory.db
 
 import edu.oregonstate.mist.api.jsonapi.ResourceObject
-import edu.oregonstate.mist.api.jsonapi.ResultObject
 import edu.oregonstate.mist.inventory.core.ConsumingEntity
 import edu.oregonstate.mist.inventory.core.DataSource
 import edu.oregonstate.mist.inventory.core.Field
@@ -118,29 +117,81 @@ class InventoryDAOWrapper {
         inventoryDAO.updateInventory(inventory, inventoryID)
 
         //Update api query parameters
-        List<Field> currentAPIQueryParams = inventoryDAO.getFields(
-                QUERY_DB_TYPE,
-                inventoryID,
-                inventoryID
-        )
+        createUpdateDeleteFields(inventory.apiQueryParams, inventoryID, inventoryID, QUERY_DB_TYPE)
 
-        def currentAPIQueryParamIDs = currentAPIQueryParams.collect { it.fieldID }
+        //Update consuming entities
+        List<ConsumingEntity> currentConsumingEntities =
+                inventoryDAO.getConsumingEntities(inventoryID)
 
-        inventory.apiQueryParams.each { queryParam ->
-            if (currentAPIQueryParamIDs.contains(queryParam.fieldID)) {
-                inventoryDAO.updateField(
-                        (Field) queryParam, inventoryID, QUERY_DB_TYPE, inventoryID)
+        def currentConsumingEntityIDs = currentConsumingEntities.collect { it.entityID }
+
+        inventory.consumingEntities.each { consumingEntity ->
+            if (currentConsumingEntityIDs.contains(consumingEntity.entityID)) {
+                inventoryDAO.updateConsumingEntity((ConsumingEntity) consumingEntity, inventoryID)
             } else {
-                inventoryDAO.createField(
-                        (Field) queryParam, inventoryID, QUERY_DB_TYPE, inventoryID)
+                inventoryDAO.createConsumingEntity((ConsumingEntity) consumingEntity, inventoryID)
             }
         }
 
-        def apiQueryParamIDsToDelete = currentAPIQueryParamIDs -
-                inventory.apiQueryParams.collect { it.fieldID }
+        def consumingEntityIDsToDelete = currentConsumingEntityIDs -
+                inventory.consumingEntities.collect { it.entityID }
 
-        apiQueryParamIDsToDelete.each {
-            inventoryDAO.deleteField(it, inventoryID, QUERY_DB_TYPE, inventoryID)
+        consumingEntityIDsToDelete.each {
+            inventoryDAO.deleteConsumingEntities(inventoryID, it)
+        }
+
+        //Update provided data
+        List<DataSource> currentProvidedData = inventoryDAO.getProvidedData(inventoryID)
+
+        def currentProvidedDataIds = currentProvidedData.collect { it.sourceID }
+
+        inventory.providedData.each { dataSource ->
+            if (currentProvidedDataIds.contains(dataSource.sourceID)) {
+                inventoryDAO.updateProvidedData((DataSource) dataSource, inventoryID)
+                //Update provided data fields
+                createUpdateDeleteFields(
+                        dataSource.fields, inventoryID, dataSource.sourceID, PROVIDED_DATA_DB_TYPE)
+            } else {
+                inventoryDAO.createProvidedData((DataSource) dataSource, inventoryID)
+
+                dataSource.fields.each { field ->
+                    inventoryDAO.createField(
+                            (Field) field, dataSource.sourceID, PROVIDED_DATA_DB_TYPE, inventoryID)
+                }
+            }
+        }
+
+        def providedDataIDsToDelete = currentProvidedDataIds -
+                inventory.providedData.collect { it.sourceID }
+
+        providedDataIDsToDelete.each {
+            inventoryDAO.deleteProvidedData(inventoryID, it)
+            inventoryDAO.deleteFields(inventoryID, null, it, PROVIDED_DATA_DB_TYPE)
+        }
+    }
+
+    private void createUpdateDeleteFields(
+            List<Field> fields, String inventoryID, String parentID, String type) {
+        List<Field> currentFields = inventoryDAO.getFields(
+                type, parentID, inventoryID)
+
+        def currentFieldIDs = currentFields.collect { it.fieldID }
+
+        fields.each { field ->
+            if (currentFieldIDs.contains(field.fieldID)) {
+                inventoryDAO.updateField(
+                        (Field) field, parentID, type, inventoryID)
+            } else {
+                inventoryDAO.createField(
+                        (Field) field, parentID, type, inventoryID)
+            }
+        }
+
+        def fieldIDsToDelete = currentFieldIDs -
+                fields.collect { it.fieldID }
+
+        fieldIDsToDelete.each {
+            inventoryDAO.deleteFields(inventoryID, it, parentID, type)
         }
     }
 
@@ -152,8 +203,8 @@ class InventoryDAOWrapper {
     @Transaction
     public void deleteInventory(String inventoryID) {
         inventoryDAO.deleteInventory(inventoryID)
-        inventoryDAO.deleteFields(inventoryID)
-        inventoryDAO.deleteConsumingEntities(inventoryID)
-        inventoryDAO.deleteProvidedData(inventoryID)
+        inventoryDAO.deleteFields(inventoryID, null, null, null)
+        inventoryDAO.deleteConsumingEntities(inventoryID, null)
+        inventoryDAO.deleteProvidedData(inventoryID, null)
     }
 }
