@@ -6,6 +6,8 @@ import edu.oregonstate.mist.inventory.core.DataSource
 import edu.oregonstate.mist.inventory.core.Field
 import edu.oregonstate.mist.inventory.core.Inventory
 import org.skife.jdbi.v2.sqlobject.Transaction
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 import javax.ws.rs.core.UriBuilder
 
@@ -15,6 +17,8 @@ class InventoryDAOWrapper {
 
     private final String QUERY_DB_TYPE = "Query"
     private final String PROVIDED_DATA_DB_TYPE = "Provided Data"
+
+    Logger logger = LoggerFactory.getLogger(InventoryDAOWrapper.class)
 
     /**
      * Get a single inventory object by ID.
@@ -65,8 +69,6 @@ class InventoryDAOWrapper {
                     inventory.id
             )
         }
-
-        inventory
 
         def addSelfLink = { String id ->
             [
