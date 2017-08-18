@@ -125,15 +125,19 @@ class InventoryDAOWrapper {
     public void updateInventory(Inventory inventory, String inventoryID) {
         //Update top level inventory attributes
         inventory.trimNameAndDescription()
+        logger.debug("Update inventory ID ${inventoryID}")
         inventoryDAO.updateInventory(inventory, inventoryID)
 
         //Update api query parameters
+        logger.debug("Update api query parameters for inventory ID ${inventoryID}")
         createUpdateDeleteFields(inventory.apiQueryParams, inventoryID, inventoryID, QUERY_DB_TYPE)
 
         //Update consuming entities
+        logger.debug("Update consuming entities for inventory ID ${inventoryID}")
         createUpdateDeleteConsumingEntities(inventory.consumingEntities, inventoryID)
 
         //Update provided data
+        logger.debug("Update provided data for inventory ID ${inventoryID}")
         createUpdateDeleteProvideData(inventory.providedData, inventoryID)
     }
 
@@ -154,9 +158,11 @@ class InventoryDAOWrapper {
 
         fields.each { field ->
             if (currentFieldIDs.contains(field.fieldID)) {
+                logger.debug("Update field ID ${field.fieldID}")
                 inventoryDAO.updateField(
                         (Field) field, parentID, type, inventoryID)
             } else {
+                logger.debug("Create field ID ${field.fieldID}")
                 inventoryDAO.createField(
                         (Field) field, parentID, type, inventoryID)
             }
@@ -166,6 +172,7 @@ class InventoryDAOWrapper {
                 fields.collect { it.fieldID }
 
         fieldIDsToDelete.each {
+            logger.debug("Delete field ID ${it}")
             inventoryDAO.deleteFields(inventoryID, it, parentID, type)
         }
     }
@@ -184,8 +191,10 @@ class InventoryDAOWrapper {
 
         consumingEntities.each { consumingEntity ->
             if (currentConsumingEntityIDs.contains(consumingEntity.entityID)) {
+                logger.debug("Update consuming entity ID ${consumingEntity.entityID}")
                 inventoryDAO.updateConsumingEntity((ConsumingEntity) consumingEntity, inventoryID)
             } else {
+                logger.debug("Create consuming entity ID ${consumingEntity.entityID}")
                 inventoryDAO.createConsumingEntity((ConsumingEntity) consumingEntity, inventoryID)
             }
         }
@@ -194,6 +203,7 @@ class InventoryDAOWrapper {
                 consumingEntities.collect { it.entityID }
 
         consumingEntityIDsToDelete.each {
+            logger.debug("Delete consuming entity ID ${it}")
             inventoryDAO.deleteConsumingEntities(inventoryID, it)
         }
     }
@@ -211,14 +221,19 @@ class InventoryDAOWrapper {
 
         providedData.each { dataSource ->
             if (currentProvidedDataIds.contains(dataSource.sourceID)) {
+                logger.debug("Update provided data ID ${dataSource.sourceID}")
                 inventoryDAO.updateProvidedData((DataSource) dataSource, inventoryID)
                 //Update provided data fields
+                logger.debug("Update provided fields for provided data ID ${dataSource.sourceID}")
                 createUpdateDeleteFields(
                         dataSource.fields, inventoryID, dataSource.sourceID, PROVIDED_DATA_DB_TYPE)
             } else {
+                logger.debug("Create provided data ID ${dataSource.sourceID}")
                 inventoryDAO.createProvidedData((DataSource) dataSource, inventoryID)
 
+                logger.debug("Create provided fields for provided data ID ${dataSource.sourceID}")
                 dataSource.fields.each { field ->
+                    logger.debug("Create provided field ID ${field.fieldID}")
                     inventoryDAO.createField(
                             (Field) field, dataSource.sourceID, PROVIDED_DATA_DB_TYPE, inventoryID)
                 }
@@ -229,7 +244,9 @@ class InventoryDAOWrapper {
                 providedData.collect { it.sourceID }
 
         providedDataIDsToDelete.each {
+            logger.debug("Delete provided data ID ${it}")
             inventoryDAO.deleteProvidedData(inventoryID, it)
+            logger.debug("Delete fields for provided data ID ${it}")
             inventoryDAO.deleteFields(inventoryID, null, it, PROVIDED_DATA_DB_TYPE)
         }
     }
