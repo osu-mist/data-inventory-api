@@ -129,54 +129,10 @@ class InventoryDAOWrapper {
         createUpdateDeleteFields(inventory.apiQueryParams, inventoryID, inventoryID, QUERY_DB_TYPE)
 
         //Update consuming entities
-        List<ConsumingEntity> currentConsumingEntities =
-                inventoryDAO.getConsumingEntities(inventoryID)
-
-        def currentConsumingEntityIDs = currentConsumingEntities.collect { it.entityID }
-
-        inventory.consumingEntities.each { consumingEntity ->
-            if (currentConsumingEntityIDs.contains(consumingEntity.entityID)) {
-                inventoryDAO.updateConsumingEntity((ConsumingEntity) consumingEntity, inventoryID)
-            } else {
-                inventoryDAO.createConsumingEntity((ConsumingEntity) consumingEntity, inventoryID)
-            }
-        }
-
-        def consumingEntityIDsToDelete = currentConsumingEntityIDs -
-                inventory.consumingEntities.collect { it.entityID }
-
-        consumingEntityIDsToDelete.each {
-            inventoryDAO.deleteConsumingEntities(inventoryID, it)
-        }
+        createUpdateDeleteConsumingEntities(inventory.consumingEntities, inventoryID)
 
         //Update provided data
-        List<DataSource> currentProvidedData = inventoryDAO.getProvidedData(inventoryID)
-
-        def currentProvidedDataIds = currentProvidedData.collect { it.sourceID }
-
-        inventory.providedData.each { dataSource ->
-            if (currentProvidedDataIds.contains(dataSource.sourceID)) {
-                inventoryDAO.updateProvidedData((DataSource) dataSource, inventoryID)
-                //Update provided data fields
-                createUpdateDeleteFields(
-                        dataSource.fields, inventoryID, dataSource.sourceID, PROVIDED_DATA_DB_TYPE)
-            } else {
-                inventoryDAO.createProvidedData((DataSource) dataSource, inventoryID)
-
-                dataSource.fields.each { field ->
-                    inventoryDAO.createField(
-                            (Field) field, dataSource.sourceID, PROVIDED_DATA_DB_TYPE, inventoryID)
-                }
-            }
-        }
-
-        def providedDataIDsToDelete = currentProvidedDataIds -
-                inventory.providedData.collect { it.sourceID }
-
-        providedDataIDsToDelete.each {
-            inventoryDAO.deleteProvidedData(inventoryID, it)
-            inventoryDAO.deleteFields(inventoryID, null, it, PROVIDED_DATA_DB_TYPE)
-        }
+        createUpdateDeleteProvideData(inventory.providedData, inventoryID)
     }
 
     /**
@@ -186,8 +142,9 @@ class InventoryDAOWrapper {
      * @param parentID
      * @param type
      */
-    private void createUpdateDeleteFields(
-            List<Field> fields, String inventoryID, String parentID, String type) {
+    private void createUpdateDeleteFields(List<Field> fields, String inventoryID,
+                                          String parentID,
+                                          String type) {
         List<Field> currentFields = inventoryDAO.getFields(
                 type, parentID, inventoryID)
 
@@ -208,6 +165,70 @@ class InventoryDAOWrapper {
 
         fieldIDsToDelete.each {
             inventoryDAO.deleteFields(inventoryID, it, parentID, type)
+        }
+    }
+
+    /**
+     * Create, update, or delete consuming entity objects
+     * @param consumingEntities
+     * @param inventoryID
+     */
+    private void createUpdateDeleteConsumingEntities(List<ConsumingEntity> consumingEntities,
+                                                     String inventoryID) {
+        List<ConsumingEntity> currentConsumingEntities =
+                inventoryDAO.getConsumingEntities(inventoryID)
+
+        def currentConsumingEntityIDs = currentConsumingEntities.collect { it.entityID }
+
+        consumingEntities.each { consumingEntity ->
+            if (currentConsumingEntityIDs.contains(consumingEntity.entityID)) {
+                inventoryDAO.updateConsumingEntity((ConsumingEntity) consumingEntity, inventoryID)
+            } else {
+                inventoryDAO.createConsumingEntity((ConsumingEntity) consumingEntity, inventoryID)
+            }
+        }
+
+        def consumingEntityIDsToDelete = currentConsumingEntityIDs -
+                consumingEntities.collect { it.entityID }
+
+        consumingEntityIDsToDelete.each {
+            inventoryDAO.deleteConsumingEntities(inventoryID, it)
+        }
+    }
+
+    /**
+     * Create, update, or delete data source objects
+     * @param providedData
+     * @param inventoryID
+     */
+    private void createUpdateDeleteProvideData(List<DataSource> providedData,
+                                               String inventoryID) {
+        List<DataSource> currentProvidedData = inventoryDAO.getProvidedData(inventoryID)
+
+        def currentProvidedDataIds = currentProvidedData.collect { it.sourceID }
+
+        providedData.each { dataSource ->
+            if (currentProvidedDataIds.contains(dataSource.sourceID)) {
+                inventoryDAO.updateProvidedData((DataSource) dataSource, inventoryID)
+                //Update provided data fields
+                createUpdateDeleteFields(
+                        dataSource.fields, inventoryID, dataSource.sourceID, PROVIDED_DATA_DB_TYPE)
+            } else {
+                inventoryDAO.createProvidedData((DataSource) dataSource, inventoryID)
+
+                dataSource.fields.each { field ->
+                    inventoryDAO.createField(
+                            (Field) field, dataSource.sourceID, PROVIDED_DATA_DB_TYPE, inventoryID)
+                }
+            }
+        }
+
+        def providedDataIDsToDelete = currentProvidedDataIds -
+                providedData.collect { it.sourceID }
+
+        providedDataIDsToDelete.each {
+            inventoryDAO.deleteProvidedData(inventoryID, it)
+            inventoryDAO.deleteFields(inventoryID, null, it, PROVIDED_DATA_DB_TYPE)
         }
     }
 
