@@ -139,6 +139,8 @@ class InventoryDAOWrapper {
         //Update provided data
         logger.debug("Update provided data for inventory ID ${inventoryID}")
         createUpdateDeleteProvideData(inventory.providedData, inventoryID)
+
+        inventoryDAO.setUpdatedAt(inventoryID)
     }
 
     /**

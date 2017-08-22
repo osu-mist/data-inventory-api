@@ -236,6 +236,17 @@ public interface InventoryDAO extends Closeable {
                                      @Bind("inventoryID") String inventoryID)
 
     /**
+     * Set the updated_at field to the current time.
+     * @param inventoryID
+     */
+    @SqlUpdate("""
+        UPDATE INVENTORY_INVENTORY
+        SET UPDATED_AT = SYSDATE
+        WHERE INVENTORY_ID = :inventoryID
+    """)
+    abstract void setUpdatedAt(@Bind("inventoryID") String inventoryID)
+
+    /**
      * Update an inventory object by ID
      * @param inventory
      * @param inventoryID
