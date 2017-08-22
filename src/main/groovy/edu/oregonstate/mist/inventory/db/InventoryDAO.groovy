@@ -60,6 +60,16 @@ public interface InventoryDAO extends Closeable {
     Inventory getInventoryByID(@Bind("inventoryID") String inventoryID)
 
     /**
+     * Check if an inventory ID is already in use.
+     * @param inventoryID
+     * @return
+     */
+    @SqlQuery("""
+        SELECT INVENTORY_ID FROM INVENTORY_INVENTORY WHERE INVENTORY_ID = :inventoryID
+    """)
+    String checkInventory(@Bind("inventoryID") String inventoryID)
+
+    /**
      * Get fields for query params or provided data fields
      * @param type
      * @param parentID - the parent ID for the field.

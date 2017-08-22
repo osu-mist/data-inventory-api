@@ -21,6 +21,15 @@ class InventoryDAOWrapper {
     Logger logger = LoggerFactory.getLogger(InventoryDAOWrapper.class)
 
     /**
+     * Calls DAO method to check if inventory ID is already in use.
+     * @param inventoryID
+     * @return
+     */
+    public String checkInventory(String inventoryID) {
+        inventoryDAO.checkInventory(inventoryID)
+    }
+
+    /**
      * Get a single inventory object by ID.
      * @param inventoryID
      * @param selfLinkBase

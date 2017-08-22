@@ -194,7 +194,7 @@ class InventoryResource extends Resource {
                     errors.add(ErrorMessages.invalidUUID())
                 }
 
-                if (inventoryDAOWrapper.getInventoryById(id)) {
+                if (inventoryDAOWrapper.checkInventory(id)) {
                     errors.add(ErrorMessages.idExists())
                 }
             }
