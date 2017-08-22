@@ -82,7 +82,7 @@ paths:
           schema:
             $ref: '#/definitions/ResultObject'
 
-    patch:
+    put:
       description: Update an existing dataInventory object
       parameters:
         - name: id
