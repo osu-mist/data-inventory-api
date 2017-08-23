@@ -23,6 +23,7 @@ import javax.ws.rs.Consumes
 import javax.ws.rs.DELETE
 import javax.ws.rs.GET
 import javax.ws.rs.POST
+import javax.ws.rs.PUT
 import javax.ws.rs.Path
 import javax.ws.rs.PathParam
 import javax.ws.rs.Produces
@@ -68,14 +69,14 @@ class InventoryResource extends Resource {
     @Timed
     @GET
     @Path('{id: [0-9a-zA-Z-]+}')
-    Response getInventoryByID(@PathParam("id") String inventoryID) {
+    Response getInventoryByID(@PathParam('id') String inventoryID) {
         ResourceObject inventory = inventoryDAOWrapper.getInventoryById(inventoryID)
 
         if (!inventory) {
-            return notFound().build()
+            notFound().build()
+        } else {
+            ok(addSingleObjectToResultObject(inventory)).build()
         }
-
-        ok(new ResultObject(data: inventory)).build()
     }
 
     /**
@@ -89,22 +90,41 @@ class InventoryResource extends Resource {
         List<Error> errors = getErrors(newResultObject)
 
         if (errors) {
-            Response.ResponseBuilder responseBuilder = Response.status(Response.Status.BAD_REQUEST)
-            return responseBuilder.entity(errors).build()
+            return errorsResponse(errors)
         }
         Inventory newInventory = resultObjectToInventory(newResultObject)
         newInventory.id = newResultObject.data['id'] ?: randomUUID() as String
 
         inventoryDAOWrapper.createInventory(newInventory)
 
-        ResourceObject newInventoryFromDB = inventoryDAOWrapper.getInventoryById(newInventory.id)
+        ResourceObject inventoryFromDB = inventoryDAOWrapper.getInventoryById(newInventory.id)
 
-        if (!newInventoryFromDB) {
-            internalServerError(ErrorMessages.getInventoryError()).build()
+        if (!inventoryFromDB) {
+            getInventoryError()
         } else {
-            created(new ResultObject(
-                    data: newInventoryFromDB
-            )).build()
+            created(addSingleObjectToResultObject(inventoryFromDB)).build()
+        }
+    }
+
+    @Timed
+    @PUT
+    @Path('{id: [0-9a-zA-Z-]+}')
+    Response updateInventory(@PathParam('id') String inventoryID,
+                             @Valid ResultObject resultObject) {
+        List<Error> errors = getErrors(resultObject, inventoryID)
+
+        if (errors) {
+            return errorsResponse(errors)
+        }
+
+        inventoryDAOWrapper.updateInventory(resultObjectToInventory(resultObject), inventoryID)
+
+        ResourceObject inventoryFromDB = inventoryDAOWrapper.getInventoryById(inventoryID)
+
+        if (!inventoryFromDB) {
+            getInventoryError()
+        } else {
+            ok(addSingleObjectToResultObject(inventoryFromDB)).build()
         }
     }
 
@@ -116,7 +136,7 @@ class InventoryResource extends Resource {
     @Timed
     @DELETE
     @Path('{id: [0-9a-zA-Z-]+}')
-    Response deleteInventoryByID(@PathParam("id") String inventoryID) {
+    Response deleteInventoryByID(@PathParam('id') String inventoryID) {
         ResourceObject inventory = inventoryDAOWrapper.getInventoryById(inventoryID)
         Response response
 
@@ -151,19 +171,30 @@ class InventoryResource extends Resource {
      * @param resultObject
      * @return
      */
-    public List<Error> getErrors(ResultObject resultObject) {
+    public List<Error> getErrors(ResultObject resultObject,
+                                 String pathID = null) {
         List<Error> errors = []
 
         try {
+            if (pathID) {
+                if (!inventoryDAOWrapper.getInventoryById(pathID)) {
+                    errors.add(ErrorMessages.idNotFound())
+                }
+
+                if (resultObject.data["id"] != pathID) {
+                    errors.add(ErrorMessages.idMismatch())
+                }
+            }
+
             // Invalid UUID
-            if (resultObject.data["id"]) {
+            if (resultObject.data["id"] && !pathID) {
                 String id = resultObject.data["id"]
 
                 if (!id.matches(uuidRegEx)) {
                     errors.add(ErrorMessages.invalidUUID())
                 }
 
-                if (inventoryDAOWrapper.getInventoryById(id)) {
+                if (inventoryDAOWrapper.checkInventory(id)) {
                     errors.add(ErrorMessages.idExists())
                 }
             }
@@ -239,6 +270,21 @@ class InventoryResource extends Resource {
         }
 
         errors
+    }
+
+    private Response errorsResponse(List<Error> errors) {
+        Response.ResponseBuilder responseBuilder = Response.status(Response.Status.BAD_REQUEST)
+        responseBuilder.entity(errors).build()
+    }
+
+    private Response getInventoryError() {
+        internalServerError(ErrorMessages.getInventoryError()).build()
+    }
+
+    private ResultObject addSingleObjectToResultObject(ResourceObject inventory) {
+        new ResultObject(
+                data: inventory
+        )
     }
 
     /**

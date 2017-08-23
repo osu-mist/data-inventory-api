@@ -13,6 +13,12 @@ Get a single inventory object by ID.
 ### DELETE /inventory/{inventoryID}
 Delete a single inventory object by ID.
 
+### POST /inventory
+Create a single inventory object.
+
+### PUT /inventory/{inventoryID}
+Update a single inventory object by ID.
+
 ### Generate Keys
 
 HTTPS is required for Web APIs in development and production. Use `keytool(1)` to generate public and private keys.

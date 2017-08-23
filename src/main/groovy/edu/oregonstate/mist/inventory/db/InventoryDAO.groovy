@@ -60,6 +60,16 @@ public interface InventoryDAO extends Closeable {
     Inventory getInventoryByID(@Bind("inventoryID") String inventoryID)
 
     /**
+     * Check if an inventory ID is already in use.
+     * @param inventoryID
+     * @return
+     */
+    @SqlQuery("""
+        SELECT INVENTORY_ID FROM INVENTORY_INVENTORY WHERE INVENTORY_ID = :inventoryID
+    """)
+    String checkInventory(@Bind("inventoryID") String inventoryID)
+
+    /**
      * Get fields for query params or provided data fields
      * @param type
      * @param parentID - the parent ID for the field.
@@ -129,6 +139,10 @@ public interface InventoryDAO extends Closeable {
     @Mapper(DataSourceMapper)
     List<DataSource> getProvidedData(@Bind("inventoryID") String inventoryID)
 
+    /**
+     * Create an inventory object
+     * @param inventory
+     */
     @SqlUpdate("""
         INSERT INTO INVENTORY_INVENTORY (
             INVENTORY_ID, NAME, DESCRIPTION,
@@ -145,6 +159,13 @@ public interface InventoryDAO extends Closeable {
         """)
     abstract void createInventory(@BindBean Inventory inventory)
 
+    /**
+     * Create a field object
+     * @param field
+     * @param parentID
+     * @param type
+     * @param inventoryID
+     */
     @SqlUpdate("""
         INSERT INTO INVENTORY_FIELDS (
             FIELD_ID, CLIENT_FIELD_ID, PARENT_ID,
@@ -166,6 +187,11 @@ public interface InventoryDAO extends Closeable {
                               @Bind("type") String type,
                               @Bind("inventoryID") String inventoryID)
 
+    /**
+     * Create a consuming entity object
+     * @param consumingEntity
+     * @param inventoryID
+     */
     @SqlUpdate("""
         INSERT INTO INVENTORY_CONSUMING_ENTITIES (
             ENTITY_ID, CLIENT_ENTITY_ID, INVENTORY_ID,
@@ -192,6 +218,11 @@ public interface InventoryDAO extends Closeable {
     abstract void createConsumingEntity(@BindBean ConsumingEntity consumingEntity,
                                         @Bind("inventoryID") String inventoryID)
 
+    /**
+     * Create a data source object
+     * @param dataSource
+     * @param inventoryID
+     */
     @SqlUpdate("""
         INSERT INTO INVENTORY_PROVIDED_DATA (
             DATA_ID, CLIENT_DATA_ID, INVENTORY_ID,
@@ -213,6 +244,100 @@ public interface InventoryDAO extends Closeable {
         """)
     abstract void createProvidedData(@BindBean DataSource dataSource,
                                      @Bind("inventoryID") String inventoryID)
+
+    /**
+     * Set the updated_at field to the current time.
+     * @param inventoryID
+     */
+    @SqlUpdate("""
+        UPDATE INVENTORY_INVENTORY
+        SET UPDATED_AT = SYSDATE
+        WHERE INVENTORY_ID = :inventoryID
+    """)
+    abstract void setUpdatedAt(@Bind("inventoryID") String inventoryID)
+
+    /**
+     * Update an inventory object by ID
+     * @param inventory
+     * @param inventoryID
+     */
+    @SqlUpdate("""
+        UPDATE INVENTORY_INVENTORY
+        SET NAME = :name,
+            DESCRIPTION = :description,
+            TYPE = :type,
+            OTHER_TYPE = :otherType,
+            UPDATED_AT = SYSDATE
+        WHERE INVENTORY_ID = :inventoryID
+        """)
+    abstract void updateInventory(@BindBean Inventory inventory,
+                                  @Bind("inventoryID") String inventoryID)
+
+    /**
+     * Update a field object
+     * @param field
+     * @param parentID
+     * @param type
+     * @param inventoryID
+     */
+    @SqlUpdate("""
+        UPDATE INVENTORY_FIELDS
+        SET FIELD = :field,
+            DESCRIPTION = :description,
+            UPDATED_AT = SYSDATE
+        WHERE CLIENT_FIELD_ID = :fieldID
+            AND PARENT_ID = :parentID
+            AND TYPE = :type
+            AND INVENTORY_ID = :inventoryID
+        """)
+    abstract void updateField(@BindBean Field field,
+                              @Bind("parentID") String parentID,
+                              @Bind("type") String type,
+                              @Bind("inventoryID") String inventoryID)
+
+    /**
+     * Update a consuming entity object
+     * @param consumingEntity
+     * @param inventoryID
+     */
+    @SqlUpdate("""
+        UPDATE INVENTORY_CONSUMING_ENTITIES
+        SET ENTITY_NAME = :entityName,
+            APPLICATION_NAME = :applicationName,
+            ENTITY_CONTACT_NAME = :entityContactName,
+            ENTITY_EMAIL = :entityEmail,
+            ENTITY_PHONE = :entityPhone,
+            ENTITY_URL = :entityUrl,
+            INTERNAL = :internal,
+            MOU = :mou,
+            DMR = :dataManagementRequest,
+            UPDATED_AT = SYSDATE
+        WHERE CLIENT_ENTITY_ID = :entityID
+            AND INVENTORY_ID = :inventoryID
+        """)
+    abstract void updateConsumingEntity(@BindBean ConsumingEntity consumingEntity,
+                                        @Bind("inventoryID") String inventoryID)
+
+    /**
+     * Update a data source object
+     * @param dataSource
+     * @param inventoryID
+     */
+    @SqlUpdate("""
+        UPDATE INVENTORY_PROVIDED_DATA
+        SET SOURCE = :source,
+            SOURCE_DESCRIPTION = :sourceDescription,
+            SOURCE_TYPE = :sourceType,
+            OTHER_SOURCE_TYPE = :otherSourceType,
+            API_URL = :apiUrl,
+            INTERNAL = :internal,
+            UPDATED_AT = SYSDATE
+        WHERE CLIENT_DATA_ID = :sourceID
+            AND INVENTORY_ID = :inventoryID
+        """)
+    abstract void updateProvidedData(@BindBean DataSource dataSource,
+                                     @Bind("inventoryID") String inventoryID)
+
     /**
      * Soft delete inventory object
      * @param inventoryID
@@ -233,8 +358,15 @@ public interface InventoryDAO extends Closeable {
         UPDATE INVENTORY_FIELDS
         SET DELETED_AT = SYSDATE
         WHERE INVENTORY_ID = :inventoryID
+            AND (CLIENT_FIELD_ID = :clientFieldID OR :clientFieldID IS NULL)
+            AND (PARENT_ID = :parentID OR :parentID IS NULL)
+            AND (TYPE = :type OR :type IS NULL)
+            AND DELETED_AT IS NULL
     """)
-    abstract void deleteFields(@Bind("inventoryID") String inventoryID)
+    abstract void deleteFields(@Bind("inventoryID") String inventoryID,
+                               @Bind("clientFieldID") String clientFieldID,
+                               @Bind("parentID") String parentID,
+                               @Bind("type") String type)
 
     /**
      * Soft delete consuming entity objects
@@ -244,8 +376,11 @@ public interface InventoryDAO extends Closeable {
         UPDATE INVENTORY_CONSUMING_ENTITIES
         SET DELETED_AT = SYSDATE
         WHERE INVENTORY_ID = :inventoryID
+            AND (CLIENT_ENTITY_ID = :entityID OR :entityID IS NULL)
+            AND DELETED_AT IS NULL
     """)
-    abstract void deleteConsumingEntities(@Bind("inventoryID") String inventoryID)
+    abstract void deleteConsumingEntities(@Bind("inventoryID") String inventoryID,
+                                          @Bind("entityID") String entityID)
 
     /**
      * Soft delete provided data objects
@@ -255,8 +390,11 @@ public interface InventoryDAO extends Closeable {
         UPDATE INVENTORY_PROVIDED_DATA
         SET DELETED_AT = SYSDATE
         WHERE INVENTORY_ID = :inventoryID
+            AND (CLIENT_DATA_ID = :sourceID OR :sourceID IS NULL)
+            AND DELETED_AT IS NULL
     """)
-    abstract void deleteProvidedData(@Bind("inventoryID") String inventoryID)
+    abstract void deleteProvidedData(@Bind("inventoryID") String inventoryID,
+                                     @Bind("sourceID") String sourceID)
 
     @Override
     void close()

@@ -21,6 +21,11 @@ class Inventory {
 
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss'Z'", timezone="UTC")
     ZonedDateTime updated
+
+    public void trimNameAndDescription() {
+        name = name.trim()
+        description = description.trim()
+    }
 }
 
 class Field {
@@ -40,6 +45,10 @@ class ConsumingEntity {
     Boolean internal
     String mou
     String dataManagementRequest
+
+    Boolean getInternal() {
+        internal ?: false
+    }
 }
 
 class DataSource {
@@ -51,4 +60,8 @@ class DataSource {
     String apiUrl
     Boolean internal
     List<Field> fields = []
+
+    Boolean getInternal() {
+        internal ?: false
+    }
 }
